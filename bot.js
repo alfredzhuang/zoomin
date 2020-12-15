@@ -7,6 +7,15 @@ client.on('ready', () => {
 
     client.user.setActivity("with Javascript")
 
+    // client.guilds.cache.forEach((guild) => {
+    //     console.log(guild.name)
+    //     guild.channels.cache.forEach((channel) => {
+    //         console.log(` - ${channel.name} ${channel.type} ${channel.id}`)
+    //     })
+    // })
+    // // bot-testing test : 788246311731724328
+    // let channel = client.channels.cache.get("788246311731724328")
+    // channel.send("Hello")
 })
 
 client.on('message', (msg) => {
@@ -54,17 +63,26 @@ function command(msg) {
     // else if(primary == "removehw") {
     //     removehw(arguments, msg)
     // }
+    else if(primary == "code") {
+        code(msg)
+    }
     else {
         msg.channel.send("Unknown command. Try `!help`")
     }
 }
 
+
+
 function help(msg) {
     msg.channel.send("I'm not sure what you need help with. Try these commands: \n"
                     + "`!addclass`, `!removeclass`, `!addtest`, `!removetest`, \n"
-                    + "`!addquiz`, `!removequiz`, `!addhw`, or `!removehw`")
+                    + "`!addquiz`, `!removequiz`, `!addhw`, `!removehw`\n"
+                    + "or if you want to see the code, use `!code`")
 }
 
+function code(msg) {
+    msg.channel.send("This bot was coded using Javascript, you can look at the documentation at https://github.com/alfredzhuang/zoomin")
+}
 // function addclass(arguments, msg)
 // function removeclass(arguments, msg)
 // function addtest(arguments, msg)
