@@ -1,0 +1,24 @@
+{
+  "name": "zoomin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alfredzhuang/zoomin.git"
+  },
+  "author": "Alfred Zhuang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alfredzhuang/zoomin/issues"
+  },
+  "homepage": "https://github.com/alfredzhuang/zoomin#readme"
+}
