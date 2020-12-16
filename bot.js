@@ -25,45 +25,45 @@ client.on('message', (msg) => {
 
      // commands
      if(msg.content.startsWith("!")) {
-         command(msg)
+         processCommand(msg)
      }
 })
 
-function command(msg) {
+function processCommand(msg) {
     let full = msg.content.substr(1)
     let split = full.split(" ")
-    let primary = split[0]
+    let command = split[0]
     let arguments = split.slice(1)
 
     // help command
-    if(primary == "help") {
+    if(command == "help") {
         help(msg)
     }
-    // else if(primary == "addclass") {
-    //     addclass(arguments, msg)
+     else if(command == "addclass") {
+         addClass(arguments, msg)
+     }
+     else if(command == "removeclass") {
+         removeClass(arguments, msg)
+     }
+    // else if(command == "addtest") {
+    //     addTest(arguments, msg)
     // }
-    // else if(primary == "removeclass") {
-    //     remove(arguments, msg)
+    // else if(command == "removetest") {
+    //     removeTest(arguments, msg)
     // }
-    // else if(primary == "addtest") {
-    //     addtest(arguments, msg)
+    // else if(command == "addquiz") {
+    //     addQuiz(arguments, msg)
     // }
-    // else if(primary == "removetest") {
-    //     removetest(arguments, msg)
+    // else if(command == "removequiz") {
+    //     removeQuiz(arguments, msg)
     // }
-    // else if(primary == "addquiz") {
-    //     addquiz(arguments, msg)
+    // else if(command == "addhw") {
+    //     addHw(arguments, msg)
     // }
-    // else if(primary == "removequiz") {
-    //     removequiz(arguments, msg)
+    // else if(command == "removehw") {
+    //     removeHw(arguments, msg)
     // }
-    // else if(primary == "addhw") {
-    //     addhw(arguments, msg)
-    // }
-    // else if(primary == "removehw") {
-    //     removehw(arguments, msg)
-    // }
-    else if(primary == "code") {
+    else if(command == "code") {
         code(msg)
     }
     else {
@@ -75,21 +75,74 @@ function command(msg) {
 
 function help(msg) {
     msg.channel.send("I'm not sure what you need help with. Try these commands: \n"
-                    + "`!addclass`, `!removeclass`, `!addtest`, `!removetest`, \n"
-                    + "`!addquiz`, `!removequiz`, `!addhw`, `!removehw`\n"
+                    + "`!addclass [class name] [zoom link] [day of the week] [time from 1-24]` \n"
+                    + "`!removeclass [class name]` \n"
+                    + "`!addtest [class of test] [day of the week] [time from 1-24]` \n"
+                    + "`!removetest [class of test]` \n"
+                    + "`!addquiz [class of test] [day of the week] [time from 1-24]` \n" 
+                    + "`!removequiz [class of test]` \n" 
+                    + "`!addhw [class of test] [day of the week] [time from 1-24]` \n" 
+                    + "`!removehw [class of test]`\n"
                     + "or if you want to see the code, use `!code`")
 }
 
 function code(msg) {
     msg.channel.send("This bot was coded using Javascript, you can look at the documentation at https://github.com/alfredzhuang/zoomin")
 }
-// function addclass(arguments, msg)
-// function removeclass(arguments, msg)
-// function addtest(arguments, msg)
-// function removetest(arguments, msg)
-// function addquiz(arguments, msg)
-// function removequiz(arguments, msg)
-// function addhw(arguments, msg)
-// function removehw(arguments, msg)
+
+let classes = []
+let tests = []
+let hw = []
+
+ function addClass(arguments, msg) {
+    if(arguments.length < 4) {
+        msg.channel.send("Not enough arguments. Try !addclass [class name] [zoom link] [day of the week] [time from 1-24]")
+        return
+    }
+    else if(arguments[2] != "M" && arguments[2] != "T" && arguments[2] != "W" && arguments[2] != "TH" && arguments[2] != "F") {
+        msg.channel.send("Invalid day, try M-T-W-TH-F") 
+        return
+    }
+    else if(arguments[3] <= 0 || arguments[3] > 24) {
+        msg.channel.send("Invalid time, try between 1-24")
+        return
+    }
+    let newClass = {
+        name: arguments[0],
+        link: arguments[1],
+        day:  arguments[2],
+        time: arguments[3],
+    }
+    classes.push(newClass)
+    msg.channel.send("Class \"" + arguments[0] + "\" added!")
+}
+ function removeClass(arguments, msg) {
+     if(arguments.length != 1) {
+        msg.channel.send("Invalid argument. Try !removeclass [class name]")
+        return
+     }
+     let index = -1;
+     for(var i = 0; i < classes.length; i++) {
+         if(classes[i].name === arguments[0]) {
+            index = i;
+         }
+     }
+     if(index > -1) {
+        classes.splice(index, 1)
+        msg.channel.send("Class \"" + arguments[0] + "\" removed!")
+        return
+     }
+     else {
+        msg.channel.send("Invalid name of class")
+        return
+     }
+ }
+
+// function addTest(arguments, msg) 
+// function removeTest(arguments, msg)
+// function addQuiz(arguments, msg)
+// function removeQuiz(arguments, msg)
+// function addHw(arguments, msg)
+// function removeHw(arguments, msg)
 
 client.login(process.env.DISCORD_KEY)
