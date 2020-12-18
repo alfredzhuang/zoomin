@@ -1,18 +1,70 @@
 let Discord = require('discord.js')
 require('dotenv').config()
 let client = new Discord.Client()
+let d = new Date()
+
+client.login(process.env.DISCORD_KEY)
 
 client.on('ready', () => {
     console.log("Connected as " + client.user.tag)
 
     client.user.setActivity("with Javascript")
 
-    setInterval(() => {
-    // bot-testing test : 788246311731724328
-     let channel = client.channels.cache.get("788246311731724328")
-     channel.send("Hello")
-    
-    }, 10000)
+    let hour = d.getHours();
+    let day
+    switch(d.getDay()) {
+        case 1:
+            day = "M"
+            break
+        case 2:
+            day = "T"
+            break
+        case 3:
+            day = "W"
+            break
+        case 4:
+            day = "TH"
+            break
+        case 5:
+            day = "F"
+            break
+        default: 
+            day = null;
+            break
+    }
+
+     setInterval(() => {
+         console.log(classes)
+     // bot-testing channel: 788246311731724328
+       if(classes.length >= 1) {
+           for(var n = 0; n < classes.length; n++) {
+               if(classes[n].day === day) {
+                    let channel = client.channels.cache.get(classes[n].channelid)
+                    let time
+                    if(classes[n] % 12 === 0) {
+                        time = classes[n].time + " AM"
+                    }
+                    else {
+                        time = classes[n].time%12 + " PM"
+                    }
+                    channel.send("@everyone There is a " + classes[n].name + " class today at " + time + ", " + classes[n].link);
+               }
+           }
+       }
+       if(tests.length >= 1) {
+         for(var n = 0; n < tests.length; n++) {
+           let channel = client.channels.cache.get(tests[n].channelid)
+           channel.send(tests[n].name);
+         }
+     }
+     if(hw.length >= 1) {
+         for(var n = 0; n < hw.length; n++) {
+           let channel = client.channels.cache.get(hw[n].channelid)
+           channel.send(hw[n].name);
+         }
+     }
+      }, 10000)
+      //86400000
 })
 
 client.on('message', (msg) => {
@@ -70,13 +122,13 @@ function processCommand(msg) {
 
 function help(msg) {
     msg.channel.send("I'm not sure what you need help with. Try these commands: \n"
-                    + "`!addclass [class name] [zoom link] [day of the week (M-T-W-TH-F)] [meeting time from 1-24]` \n"
+                    + "`!addclass [class name] [zoom link] [day of the week (M-T-W-TH-F)] [meeting time from 0-23]` \n"
                     + "`!removeclass [class name]` \n"
-                    + "`!addtest [class name] [day of the week (M-T-W-TH-F)] [time from 1-24]` \n"
+                    + "`!addtest [class name] [day of the week (M-T-W-TH-F)] [time from 0-23]` \n"
                     + "`!removetest [class name]` \n"
-                    + "`!addquiz [class name] [day of the week (M-T-W-TH-F)] [time from 1-24]` \n" 
+                    + "`!addquiz [class name] [day of the week (M-T-W-TH-F)] [time from 0-23]` \n" 
                     + "`!removequiz [class name]` \n" 
-                    + "`!addhw [class name] [day of the week (M-T-W-TH-F)] [due date (time from 1-24)]` \n" 
+                    + "`!addhw [class name] [day of the week (M-T-W-TH-F)] [due date (time from 0-23)]` \n" 
                     + "`!removehw [class name]`\n"
                     + "or if you want to see the code, use `!code`")
 }
@@ -91,7 +143,7 @@ let hw = []
 
  function addClass(arguments, msg) {
     if(arguments.length != 4) {
-        msg.channel.send("Invalid arguments. Try `!addclass [class name] [zoom link] [day of the week] [time from 1-24]`")
+        msg.channel.send("Invalid arguments. Try `!addclass [class name] [zoom link] [day of the week] [time from 0-23]`")
         return
     }
     else if(arguments[2] != "M" && arguments[2] != "T" && arguments[2] != "W" && arguments[2] != "TH" && arguments[2] != "F") {
@@ -99,7 +151,7 @@ let hw = []
         return
     }
     else if(arguments[3] <= 0 || arguments[3] > 24) {
-        msg.channel.send("Invalid time, try between 1-24")
+        msg.channel.send("Invalid time, try between 0-23")
         return
     }
     let newClass = {
@@ -137,7 +189,7 @@ let hw = []
 
  function addTest(arguments, msg) {
     if(arguments.length != 3) {
-        msg.channel.send("Invalid arguments. Try `!addtest [class of test] [day of the week (M-T-W-TH-F)] [time from 1-24]`")
+        msg.channel.send("Invalid arguments. Try `!addtest [class of test] [day of the week (M-T-W-TH-F)] [time from 0-23]`")
         return
     }
     else if(arguments[1] != "M" && arguments[1] != "T" && arguments[1] != "W" && arguments[1] != "TH" && arguments[1] != "F") {
@@ -145,7 +197,7 @@ let hw = []
         return
     }
     else if(arguments[2] <= 0 || arguments[2] > 24) {
-        msg.channel.send("Invalid time, try between 1-24")
+        msg.channel.send("Invalid time, try between 0-23")
         return
     }
     let newTest = {
@@ -156,6 +208,10 @@ let hw = []
     }
     tests.push(newTest)
     msg.channel.send("Test added!")
+    let test = setInterval(() => {
+        //check if the tests array still contains this test name or not every 12 hours? (if not, end interval and removetest)
+        
+    }, 10000)
  }
  function removeTest(arguments, msg) {
     if(arguments.length != 1) {
@@ -181,7 +237,7 @@ let hw = []
  }
  function addQuiz(arguments, msg) {
     if(arguments.length != 3) {
-        msg.channel.send("Invalid arguments. Try `!addquiz [class of test] [day of the week (M-T-W-TH-F)] [time from 1-24]`")
+        msg.channel.send("Invalid arguments. Try `!addquiz [class of test] [day of the week (M-T-W-TH-F)] [time from 0-23]`")
         return
     }
     else if(arguments[1] != "M" && arguments[1] != "T" && arguments[1] != "W" && arguments[1] != "TH" && arguments[1] != "F") {
@@ -189,7 +245,7 @@ let hw = []
         return
     }
     else if(arguments[2] <= 0 || arguments[2] > 24) {
-        msg.channel.send("Invalid time, try between 1-24")
+        msg.channel.send("Invalid time, try between 0-23")
         return
     }
     let newQuiz = {
@@ -225,7 +281,7 @@ let hw = []
  }
  function addHw(arguments, msg) {
     if(arguments.length != 3) {
-        msg.channel.send("Invalid arguments. Try `!addhw [class of test] [day of the week (M-T-W-TH-F)] [time from 1-24]`")
+        msg.channel.send("Invalid arguments. Try `!addhw [class of test] [day of the week (M-T-W-TH-F)] [time from 0-23]`")
         return
     }
     else if(arguments[1] != "M" && arguments[1] != "T" && arguments[1] != "W" && arguments[1] != "TH" && arguments[1] != "F") {
@@ -233,7 +289,7 @@ let hw = []
         return
     }
     else if(arguments[2] <= 0 || arguments[2] > 24) {
-        msg.channel.send("Invalid time, try between 1-24")
+        msg.channel.send("Invalid time, try between 0-23")
         return
     }
     let newHw = {
@@ -267,5 +323,3 @@ let hw = []
        return
     }
  }
-
-client.login(process.env.DISCORD_KEY)
