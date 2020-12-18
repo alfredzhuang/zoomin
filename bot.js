@@ -17,10 +17,24 @@ client.on('ready', () => {
 
     client.user.setActivity("with Javascript")
 
+    reminder()
+    checkDates()
+})
+
+client.on('message', (msg) => {
+     if(msg.author.bot) {
+         return
+     }
+     // commands
+     if(msg.content.startsWith("!")) {
+         processCommand(msg)
+     }
+})
+
+function reminder() {
     // get today's date, month, hour, and day
-    let date = d.getDate();
-    let month = d.getMonth() + 1;
-    let hour = d.getHours()
+    let date = d.getDate()
+    let month = d.getMonth() + 1
     let day
     switch(d.getDay()) {
         case 1:
@@ -49,7 +63,13 @@ client.on('ready', () => {
                if(classes[n].day === day) {
                     let channel = client.channels.cache.get(classes[n].channelid)
                     let time
-                    if(classes[n] % 12 === 0) {
+                    if(classes[n].time == 0) {
+                        time = "12 AM"
+                    }
+                    else if(classes[n].time == 12) {
+                        time = "12 PM"
+                    }
+                    else if(classes[n].time < 12) {
                         time = classes[n].time + " AM"
                     }
                     else {
@@ -62,7 +82,13 @@ client.on('ready', () => {
        if(tests.length >= 1) {
             for(var n = 0; n < tests.length; n++) {
                 let channel = client.channels.cache.get(tests[n].channelid)
-                if(tests[n] % 12 === 0) {
+                if(tests[n].time == 0) {
+                    time = "12 AM"
+                }
+                else if(tests[n].time == 12) {
+                    time = "12 PM"
+                }
+                else if(tests[n].time < 12) {
                     time = tests[n].time + " AM"
                     }
                 else {
@@ -81,11 +107,17 @@ client.on('ready', () => {
         if(quizzes.length >= 1) {
             for(var n = 0; n < quizzes.length; n++) {
                 let channel = client.channels.cache.get(quizzes[n].channelid)
-                if(quizzes[n] % 12 === 0) {
-                 time = quizzes[n].time + " AM"
+                if(quizzes[n].time == 0) {
+                    time = "12 AM"
+                }
+                else if(quizzes[n].time == 12) {
+                    time = "12 PM"
+                }
+                else if(quizzes[n].time < 12) {
+                    time = quizzes[n].time + " AM"
                  }
                 else {
-                 time = quizzes[n].time%12 + " PM"
+                    time = quizzes[n].time%12 + " PM"
                 }
                 let theDate
                 if(quizzes[n].month == month && quizzes[n].date == date) {
@@ -100,11 +132,17 @@ client.on('ready', () => {
         if(hw.length >= 1) {
             for(var n = 0; n < hw.length; n++) {
                 let channel = client.channels.cache.get(hw[n].channelid)
-                if(hw[n] % 12 === 0) {
-                 time = hw[n].time + " AM"
+                if(hw[n].time == 0) {
+                    time = "12 AM"
+                }
+                else if(hw[n].time == 12) {
+                    time = "12 PM"
+                }
+                else if(hw[n].time < 12) {
+                    time = hw[n].time + " AM"
                  }
                 else {
-                 time = hw[n].time%12 + " PM"
+                    time = hw[n].time%12 + " PM"
                 }
                 let theDate
                 if(hw[n].month == month && hw[n].date == date) {
@@ -116,10 +154,16 @@ client.on('ready', () => {
                 channel.send("❗ @everyone Homework is due for " + hw[n].name + " " + theDate + " at " + time + " ❗")
             }
         }
-      }, 86400000)
+      }, 30000)
+      //86400000
+ }
 
+function checkDates() {
     // Every 12 hours, check if we've passed the dates on tests, quizzes, and hw. If so, we remove it from the array
     setInterval(() => {
+        let date = d.getDate();
+        let month = d.getMonth() + 1;
+        let hour = d.getHours()
         if(tests.length >= 1) {
             for(var n = 0; n < tests.length; n++) {
                 if(tests[n].month == month && tests[n].date == date && hour > tests[n].time) {
@@ -141,15 +185,6 @@ client.on('ready', () => {
                 }
             }
         }
-    }, 43200000)
-})
-
-client.on('message', (msg) => {
-     if(msg.author.bot) {
-         return
-     }
-     // commands
-     if(msg.content.startsWith("!")) {
-         processCommand(msg)
-     }
-})
+    }, 10000)
+    //43200000
+}
