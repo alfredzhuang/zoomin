@@ -441,9 +441,16 @@ let hw = []
         return
     }
     else {
-        msg.react("👍")
+        let count = 0
         for(var n = 0; n < classes.length; n++) {
-            msg.channel.send("Class " + (n+1) + ": " + classes[n].name + " - " + classes[n].link + " - " + classes[n].day + " - " + classes[n].time)
+            if(classes[n].channelid == msg.channel.id) {
+                msg.channel.send("Class " + (count+1) + ": " + classes[n].name + " - " + classes[n].link + " - " + classes[n].day + " - " + classes[n].time)
+                count++
+            }
+        }
+        if(count == 0) {
+            msg.channel.send("There are currently no existing classes")
+            return
         }
     }
  }
@@ -453,9 +460,16 @@ let hw = []
         return
     }
     else {
-        msg.react("👍")
+        let count = 0
         for(var n = 0; n < tests.length; n++) {
-            msg.channel.send("Test " + (n+1) + ": " + tests[n].name + " - " + tests[n].month + "/" + tests[n].date + " - " + tests[n].time)
+            if(tests[n].channelid == msg.channel.id) {
+                msg.channel.send("Test " + (count+1) + ": " + tests[n].name + " - " + tests[n].month + "/" + tests[n].date + " - " + tests[n].time)
+                count++
+            }
+        }
+        if(count == 0) {
+            msg.channel.send("There are currently no existing tests")
+            return
         }
     }
  }
@@ -465,9 +479,16 @@ let hw = []
         return
     }
     else {
-        msg.react("👍")
+        let count = 0
         for(var n = 0; n < quizzes.length; n++) {
-            msg.channel.send("Quiz " + (n+1) + ": " + quizzes[n].name + " - " + quizzes[n].month + "/" + quizzes[n].date + " - " + quizzes[n].time)
+            if(quizzes[n].channelid == msg.channel.id) {
+                msg.channel.send("Quiz " + (count+1) + ": " + quizzes[n].name + " - " + quizzes[n].month + "/" + quizzes[n].date + " - " + quizzes[n].time)
+                count++
+            }
+        }
+        if(count == 0) {
+            msg.channel.send("There are currently no existing quizzes")
+            return
         }
     }
  }
@@ -477,9 +498,16 @@ let hw = []
         return
     }
     else {
-        msg.react("👍")
+        let count = 0
         for(var n = 0; n < hw.length; n++) {
-            msg.channel.send("Homework " + (n+1) + ": " + hw[n].name + " - " + hw[n].month + "/" + hw[n].date + " - " + hw[n].time)
+            if(hw[n].channelid == msg.channel.id) {
+                msg.channel.send("Homework " + (count+1) + ": " + hw[n].name + " - " + hw[n].month + "/" + hw[n].date + " - " + hw[n].time)
+                count++
+            }
+        }
+        if(count == 0) {
+            msg.channel.send("There are currently no existing homeworks")
+            return
         }
     }
  }
