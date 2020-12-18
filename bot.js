@@ -56,13 +56,19 @@ client.on('ready', () => {
            let channel = client.channels.cache.get(tests[n].channelid)
            channel.send(tests[n].name);
          }
-     }
-     if(hw.length >= 1) {
-         for(var n = 0; n < hw.length; n++) {
-           let channel = client.channels.cache.get(hw[n].channelid)
-           channel.send(hw[n].name);
-         }
-     }
+        }
+        if(quizzes.length >= 1) {
+            for(var n = 0; n < quizzes.length; n++) {
+              let channel = client.channels.cache.get(quizzes[n].channelid)
+              channel.send(quizzes[n].name);
+            }
+           }
+        if(hw.length >= 1) {
+            for(var n = 0; n < hw.length; n++) {
+            let channel = client.channels.cache.get(hw[n].channelid)
+            channel.send(hw[n].name);
+            }
+        }
       }, 10000)
       //86400000
 })
@@ -139,6 +145,7 @@ function code(msg) {
 
 let classes = []
 let tests = []
+let quizzes = []
 let hw = []
 
  function addClass(arguments, msg) {
@@ -254,7 +261,8 @@ let hw = []
         time: arguments[2],
         channelid: msg.channel.id
     }
-    tests.push(newQuiz)
+    quizzes.push(newQuiz)
+    console.log(quizzes)
     msg.channel.send("Quiz added!")
 }
  function removeQuiz(arguments, msg) {
@@ -263,15 +271,16 @@ let hw = []
         return
     }
     let index = -1;
-    for(var i = 0; i < tests.length; i++) {
-        if(tests[i].name === arguments[0]) {
+    for(var i = 0; i < quizzes.length; i++) {
+        if(quizzes[i].name === arguments[0]) {
            index = i;
            break
         }
     }
     if(index > -1) {
-       tests.splice(index, 1)
+       quizzes.splice(index, 1)
        msg.channel.send("Quiz removed!")
+       console.log(quizzes)
        return
     }
     else {
