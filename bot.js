@@ -48,28 +48,28 @@ client.on('ready', () => {
                     else {
                         time = classes[n].time%12 + " PM"
                     }
-                    channel.send("@everyone There is a " + classes[n].name + " class today at " + time + ", " + classes[n].link);
+                    channel.send("❗ @everyone There is a " + classes[n].name + " class today at " + time + ", " + classes[n].link + " ❗");
                }
            }
        }
        if(tests.length >= 1) {
-         for(var n = 0; n < tests.length; n++) {
-           let channel = client.channels.cache.get(tests[n].channelid)
-           if(tests[n] % 12 === 0) {
-            time = tests[n].time + " AM"
-            }
-           else {
-            time = tests[n].time%12 + " PM"
-           }
-           let theDate
-           if(tests[n].month == month && tests[n].date == date) {
-               theDate = "Today"
-           }
-           else {
-               theDate = "on " + tests[n].month + "/" + tests[n].date
-           }
-           channel.send("@everyone There is a test for " + tests[n].name + " " + theDate + " at " + time)
-         }
+            for(var n = 0; n < tests.length; n++) {
+                let channel = client.channels.cache.get(tests[n].channelid)
+                if(tests[n] % 12 === 0) {
+                    time = tests[n].time + " AM"
+                    }
+                else {
+                    time = tests[n].time%12 + " PM"
+                }
+                let theDate
+                if(tests[n].month == month && tests[n].date == date) {
+                    theDate = "Today"
+                }
+                else {
+                    theDate = "on " + tests[n].month + "/" + tests[n].date
+                }
+                channel.send("❗ @everyone There is a test for " + tests[n].name + " " + theDate + " at " + time + " ❗")
+                }
         }
         if(quizzes.length >= 1) {
             for(var n = 0; n < quizzes.length; n++) {
@@ -87,7 +87,7 @@ client.on('ready', () => {
                 else {
                     theDate = "on " + quizzes[n].month + "/" + quizzes[n].date
                 }
-                channel.send("@everyone There is a quiz for " + quizzes[n].name + " " + theDate + " at " + time)
+                channel.send("❗ @everyone There is a quiz for " + quizzes[n].name + " " + theDate + " at " + time + " ❗")
             }
            }
         if(hw.length >= 1) {
@@ -106,11 +106,10 @@ client.on('ready', () => {
                 else {
                     theDate = "on " + hw[n].month + "/" + hw[n].date
                 }
-                channel.send("@everyone Homework is due for " + hw[n].name + " " + theDate + " at " + time)
+                channel.send("❗ @everyone Homework is due for " + hw[n].name + " " + theDate + " at " + time + " ❗")
             }
         }
-      }, 45000)
-      //86400000
+      }, 86400000)
 
     // Every 12 hours, check if we've passed the dates on tests, quizzes, and hw. If so, we remove it from the array
     setInterval(() => {
@@ -135,8 +134,7 @@ client.on('ready', () => {
                 }
             }
         }
-    }, 15000)
-    //43200000
+    }, 43200000)
 })
 
 client.on('message', (msg) => {
@@ -180,10 +178,22 @@ function processCommand(msg) {
     }
     else if(command == "addhw") {
         addHw(arguments, msg)
-     }
+    }
     else if(command == "removehw") {
          removeHw(arguments, msg)
-     }
+    }
+    else if(command == "seeclasses") {
+        seeClasses(msg)
+    }
+    else if(command == "seetests") {
+        seeTests(msg)
+    }
+    else if(command == "seequizzes") {
+        seeQuizzes(msg)
+    }
+    else if(command == "seehomeworks") {
+        seeHomeworks(msg)
+    }
     else if(command == "code") {
         code(msg)
     }
@@ -202,6 +212,10 @@ function help(msg) {
                     + "`!removequiz [class name]` \n" 
                     + "`!addhw [class name] deadline [month (1-12)] [date (1-31)] [time from 0-23]` \n" 
                     + "`!removehw [class name]`\n"
+                    + "To see the existing list of classes, use `!seeclasses`\n"
+                    + "To see the existing list of tests, use `!seetests`\n"
+                    + "To see the existing list of quizzes, use `!seequizzes`\n"
+                    + "To see the existing list of homework, use `!seehomeworks`\n"
                     + "or if you want to see the code, use `!code`")
 }
 function code(msg) {
@@ -233,6 +247,7 @@ let hw = []
         time: arguments[3],
         channelid: msg.channel.id
     }
+    msg.react("👍")
     classes.push(newClass)
     msg.channel.send("Class \"" + arguments[0] + "\" added!")
 }
@@ -250,6 +265,7 @@ let hw = []
      }
      if(index > -1) {
         classes.splice(index, 1)
+        msg.react("👍")
         msg.channel.send("Class \"" + arguments[0] + "\" removed!")
         return
      }
@@ -283,6 +299,7 @@ let hw = []
         time: arguments[3],
         channelid: msg.channel.id
     }
+    msg.react("👍")
     tests.push(newTest)
     msg.channel.send("Test added!")
  }
@@ -306,6 +323,7 @@ let hw = []
        return
     }
     else {
+       msg.react("👍")
        msg.channel.send("Invalid test name")
        return
     }
@@ -334,6 +352,7 @@ let hw = []
         time: arguments[3],
         channelid: msg.channel.id
     }
+    msg.react("👍")
     quizzes.push(newQuiz)
     msg.channel.send("Quiz added!")
 }
@@ -352,6 +371,7 @@ let hw = []
     if(index > -1) {
        quizzes.splice(index, 1)
        if(msg != null) {
+        msg.react("👍")
         msg.channel.send("Quiz removed!")
         }
        return
@@ -380,11 +400,12 @@ let hw = []
     }
     let newHw = {
         name: arguments[0],
-        month:  arguments[1],
+        month: arguments[1],
         date: arguments[2],
         time: arguments[3],
         channelid: msg.channel.id
     }
+    msg.react("👍")
     hw.push(newHw)
     msg.channel.send("Homework added!")
  }
@@ -403,6 +424,7 @@ let hw = []
     if(index > -1) {
        hw.splice(index, 1)
        if(msg != null) {
+        msg.react("👍")
         msg.channel.send("Homework removed!")
         }
        return
@@ -410,5 +432,54 @@ let hw = []
     else {
        msg.channel.send("Invalid homework name")
        return
+    }
+ }
+
+ function seeClasses(msg) {
+    if(classes.length == 0) {
+        msg.channel.send("There are currently no existing classes")
+        return
+    }
+    else {
+        msg.react("👍")
+        for(var n = 0; n < classes.length; n++) {
+            msg.channel.send("Class " + (n+1) + ": " + classes[n].name + " - " + classes[n].link + " - " + classes[n].day + " - " + classes[n].time)
+        }
+    }
+ }
+ function seeTests(msg) {
+    if(tests.length == 0) {
+        msg.channel.send("There are currently no existing tests")
+        return
+    }
+    else {
+        msg.react("👍")
+        for(var n = 0; n < tests.length; n++) {
+            msg.channel.send("Test " + (n+1) + ": " + tests[n].name + " - " + tests[n].month + "/" + tests[n].date + " - " + tests[n].time)
+        }
+    }
+ }
+ function seeQuizzes(msg) {
+    if(quizzes.length == 0) {
+        msg.channel.send("There are currently no existing quizzes")
+        return
+    }
+    else {
+        msg.react("👍")
+        for(var n = 0; n < quizzes.length; n++) {
+            msg.channel.send("Quiz " + (n+1) + ": " + quizzes[n].name + " - " + quizzes[n].month + "/" + quizzes[n].date + " - " + quizzes[n].time)
+        }
+    }
+ }
+ function seeHomeworks(msg) {
+    if(hw.length == 0) {
+        msg.channel.send("There are currently no existing homeworks")
+        return
+    }
+    else {
+        msg.react("👍")
+        for(var n = 0; n < hw.length; n++) {
+            msg.channel.send("Homework " + (n+1) + ": " + hw[n].name + " - " + hw[n].month + "/" + hw[n].date + " - " + hw[n].time)
+        }
     }
  }
