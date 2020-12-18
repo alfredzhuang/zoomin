@@ -10,9 +10,10 @@ client.on('ready', () => {
 
     client.user.setActivity("with Javascript")
 
+    // get today's date, month, hour, and day
     let date = d.getDate();
     let month = d.getMonth() + 1;
-    let hour = d.getHours();
+    let hour = d.getHours()
     let day
     switch(d.getDay()) {
         case 1:
@@ -33,9 +34,9 @@ client.on('ready', () => {
         default: 
             day = null;
     }
-     setInterval(() => {
-         console.log(hw)
-     // bot-testing channel: 788246311731724328
+
+    // Every 24 hours, send a message to the channels that have classes today, or tests/quizzes/hw coming up soon
+    setInterval(() => {
        if(classes.length >= 1) {
            for(var n = 0; n < classes.length; n++) {
                if(classes[n].day === day) {
@@ -108,15 +109,40 @@ client.on('ready', () => {
                 channel.send("@everyone Homework is due for " + hw[n].name + " " + theDate + " at " + time)
             }
         }
-      }, 10000)
+      }, 45000)
       //86400000
+
+    // Every 12 hours, check if we've passed the dates on tests, quizzes, and hw. If so, we remove it from the array
+    setInterval(() => {
+        if(tests.length >= 1) {
+            for(var n = 0; n < tests.length; n++) {
+                if(tests[n].month == month && tests[n].date == date && hour > tests[n].time) {
+                    removeTest([tests[n].name])
+                }
+            }
+        }
+        if(quizzes.length >= 1) {
+            for(var n = 0; n < quizzes.length; n++) {
+                if(quizzes[n].month == month && quizzes[n].date == date && hour > quizzes[n].time) {
+                    removeQuiz([quizzes[n].name])
+                }
+            }
+        }
+        if(hw.length >= 1) {
+            for(var n = 0; n < hw.length; n++) {
+                if(hw[n].month == month && hw[n].date == date && hour > hw[n].time) {
+                    removeHw([hw[n].name])
+                }
+            }
+        }
+    }, 15000)
+    //43200000
 })
 
 client.on('message', (msg) => {
      if(msg.author.bot) {
          return
      }
-
      // commands
      if(msg.content.startsWith("!")) {
          processCommand(msg)
@@ -124,6 +150,7 @@ client.on('message', (msg) => {
 })
 
 function processCommand(msg) {
+    // split the command and arguments
     let full = msg.content.substr(1)
     let split = full.split(" ")
     let command = split[0]
@@ -177,7 +204,6 @@ function help(msg) {
                     + "`!removehw [class name]`\n"
                     + "or if you want to see the code, use `!code`")
 }
-
 function code(msg) {
     msg.channel.send("This bot was coded using Javascript, you can look at the documentation at https://github.com/alfredzhuang/zoomin")
 }
@@ -259,17 +285,13 @@ let hw = []
     }
     tests.push(newTest)
     msg.channel.send("Test added!")
-    let test = setInterval(() => {
-        //check if the tests array still contains this test name or not every 12 hours? (if not, end interval and removetest)
-        
-    }, 10000)
  }
  function removeTest(arguments, msg) {
     if(arguments.length != 1) {
         msg.channel.send("Invalid argument. Try `!removetest [class name]`")
         return
     }
-    let index = -1;
+    let index = -1
     for(var i = 0; i < tests.length; i++) {
         if(tests[i].name === arguments[0]) {
            index = i;
@@ -278,7 +300,9 @@ let hw = []
     }
     if(index > -1) {
        tests.splice(index, 1)
-       msg.channel.send("Test removed!")
+       if(msg != null) {
+         msg.channel.send("Test removed!")
+       }
        return
     }
     else {
@@ -311,7 +335,6 @@ let hw = []
         channelid: msg.channel.id
     }
     quizzes.push(newQuiz)
-    console.log(quizzes)
     msg.channel.send("Quiz added!")
 }
  function removeQuiz(arguments, msg) {
@@ -319,7 +342,7 @@ let hw = []
         msg.channel.send("Invalid argument. Try `!removequiz [class name]`")
         return
     }
-    let index = -1;
+    let index = -1
     for(var i = 0; i < quizzes.length; i++) {
         if(quizzes[i].name === arguments[0]) {
            index = i;
@@ -328,8 +351,9 @@ let hw = []
     }
     if(index > -1) {
        quizzes.splice(index, 1)
-       msg.channel.send("Quiz removed!")
-       console.log(quizzes)
+       if(msg != null) {
+        msg.channel.send("Quiz removed!")
+        }
        return
     }
     else {
@@ -369,7 +393,7 @@ let hw = []
         msg.channel.send("Invalid argument. Try `!removehw [class name]`")
         return
     }
-    let index = -1;
+    let index = -1
     for(var i = 0; i < hw.length; i++) {
         if(hw[i].name === arguments[0]) {
            index = i;
@@ -378,7 +402,9 @@ let hw = []
     }
     if(index > -1) {
        hw.splice(index, 1)
-       msg.channel.send("Homework removed!")
+       if(msg != null) {
+        msg.channel.send("Homework removed!")
+        }
        return
     }
     else {
