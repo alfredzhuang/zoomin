@@ -1,3 +1,13 @@
+let Datastore = require('nedb')
+let classes = new Datastore('database/classes.db')
+classes.loadDatabase()
+let tests = new Datastore('database/tests.db')
+tests.loadDatabase()
+let quizzes = new Datastore('database/quizzes.db')
+quizzes.loadDatabase()
+let hw = new Datastore('database/hw.db')
+hw.loadDatabase()
+
 function processCommand(msg) {
     // split the command and arguments
     let full = msg.content.substr(1)
@@ -73,11 +83,6 @@ function code(msg) {
     msg.channel.send("This bot was coded using Javascript, you can look at the documentation at https://github.com/alfredzhuang/zoomin")
 }
 
-let classes = []
-let tests = []
-let quizzes = []
-let hw = []
-
  function addClass(arguments, msg) {
     if(arguments.length != 4) {
         msg.channel.send("Invalid arguments. Try `!addclass [class name] [zoom link] [day of the week] [time from 0-23]`")
@@ -96,34 +101,29 @@ let hw = []
         link: arguments[1],
         day:  arguments[2],
         time: arguments[3],
+        user: msg.author.toString(),
         channelid: msg.channel.id
     }
     msg.react("👍")
-    classes.push(newClass)
-    msg.channel.send("Class \"" + arguments[0] + "\" added!")
+    classes.insert(newClass)
+    msg.channel.send("Class added!")
 }
  function removeClass(arguments, msg) {
      if(arguments.length != 1) {
         msg.channel.send("Invalid argument. Try `!removeclass [class name]`")
         return
      }
-     let index = -1;
-     for(var i = 0; i < classes.length; i++) {
-         if(classes[i].name === arguments[0]) {
-            index = i;
-            break
-         }
-     }
-     if(index > -1) {
-        classes.splice(index, 1)
-        msg.react("👍")
-        msg.channel.send("Class \"" + arguments[0] + "\" removed!")
-        return
-     }
-     else {
-        msg.channel.send("Invalid name of class")
-        return
-     }
+     classes.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
+        if(numRemoved == 1) {
+            msg.react("👍")
+            msg.channel.send("Class removed!")
+            return
+        }
+        else {
+            msg.channel.send("Invalid name of class")
+            return
+        }
+    })
  }
 
  function addTest(arguments, msg) {
@@ -148,10 +148,11 @@ let hw = []
         month:  arguments[1],
         date: arguments[2],
         time: arguments[3],
+        user: msg.author.toString(),
         channelid: msg.channel.id
     }
     msg.react("👍")
-    tests.push(newTest)
+    tests.insert(newTest)
     msg.channel.send("Test added!")
  }
  function removeTest(arguments, msg) {
@@ -159,25 +160,17 @@ let hw = []
         msg.channel.send("Invalid argument. Try `!removetest [class name]`")
         return
     }
-    let index = -1
-    for(var i = 0; i < tests.length; i++) {
-        if(tests[i].name === arguments[0]) {
-           index = i;
-           break
+    tests.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
+        if(numRemoved == 1) {
+            msg.react("👍")
+            msg.channel.send("Test removed!")
+            return
         }
-    }
-    if(index > -1) {
-       tests.splice(index, 1)
-       if(msg != null) {
-         msg.channel.send("Test removed!")
-       }
-       return
-    }
-    else {
-       msg.react("👍")
-       msg.channel.send("Invalid test name")
-       return
-    }
+        else {
+            msg.channel.send("Invalid test name")
+            return
+        }
+    })
  }
  function addQuiz(arguments, msg) {
     if(arguments.length != 4) {
@@ -201,10 +194,11 @@ let hw = []
         month:  arguments[1],
         date: arguments[2],
         time: arguments[3],
+        user: msg.author.toString(),
         channelid: msg.channel.id
     }
     msg.react("👍")
-    quizzes.push(newQuiz)
+    quizzes.insert(newQuiz)
     msg.channel.send("Quiz added!")
 }
  function removeQuiz(arguments, msg) {
@@ -212,25 +206,17 @@ let hw = []
         msg.channel.send("Invalid argument. Try `!removequiz [class name]`")
         return
     }
-    let index = -1
-    for(var i = 0; i < quizzes.length; i++) {
-        if(quizzes[i].name === arguments[0]) {
-           index = i;
-           break
+    quizzes.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
+        if(numRemoved == 1) {
+            msg.react("👍")
+            msg.channel.send("Quiz removed!")
+            return
         }
-    }
-    if(index > -1) {
-       quizzes.splice(index, 1)
-       if(msg != null) {
-        msg.react("👍")
-        msg.channel.send("Quiz removed!")
+        else {
+            msg.channel.send("Invalid quiz name")
+            return
         }
-       return
-    }
-    else {
-       msg.channel.send("Invalid quiz name")
-       return
-    }
+    })
  }
  function addHw(arguments, msg) {
     if(arguments.length != 4) {
@@ -254,10 +240,11 @@ let hw = []
         month: arguments[1],
         date: arguments[2],
         time: arguments[3],
+        user: msg.author.toString(),
         channelid: msg.channel.id
     }
     msg.react("👍")
-    hw.push(newHw)
+    hw.insert(newHw)
     msg.channel.send("Homework added!")
  }
  function removeHw(arguments, msg) {
@@ -265,25 +252,17 @@ let hw = []
         msg.channel.send("Invalid argument. Try `!removehw [class name]`")
         return
     }
-    let index = -1
-    for(var i = 0; i < hw.length; i++) {
-        if(hw[i].name === arguments[0]) {
-           index = i;
-           break
+    hw.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
+        if(numRemoved == 1) {
+            msg.react("👍")
+            msg.channel.send("Homework removed!")
+            return
         }
-    }
-    if(index > -1) {
-       hw.splice(index, 1)
-       if(msg != null) {
-        msg.react("👍")
-        msg.channel.send("Homework removed!")
+        else {
+            msg.channel.send("Invalid homework name")
+            return
         }
-       return
-    }
-    else {
-       msg.channel.send("Invalid homework name")
-       return
-    }
+      })
  }
 
  function seeClasses(msg) {
@@ -292,17 +271,17 @@ let hw = []
         return
     }
     else {
-        let count = 0
-        for(var n = 0; n < classes.length; n++) {
-            if(classes[n].channelid == msg.channel.id) {
-                msg.channel.send("Class " + (count+1) + ": " + classes[n].name + " - " + classes[n].link + " - " + classes[n].day + " - " + classes[n].time)
+        classes.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
+            let count = 0
+            for(item of docs) {
+                msg.channel.send("Class " + (count+1) + ": " + item.name + " - " + item.link + " - " + item.day + " - " + item.time)
                 count++
             }
-        }
-        if(count == 0) {
-            msg.channel.send("There are currently no existing classes")
-            return
-        }
+            if(count == 0) {
+                msg.channel.send("There are currently no existing classes")
+                return
+            }
+        })
     }
  }
  function seeTests(msg) {
@@ -311,17 +290,17 @@ let hw = []
         return
     }
     else {
-        let count = 0
-        for(var n = 0; n < tests.length; n++) {
-            if(tests[n].channelid == msg.channel.id) {
-                msg.channel.send("Test " + (count+1) + ": " + tests[n].name + " - " + tests[n].month + "/" + tests[n].date + " - " + tests[n].time)
+        tests.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
+            let count = 0
+            for(item of docs) {
+                msg.channel.send("Test " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.time)
                 count++
             }
-        }
-        if(count == 0) {
-            msg.channel.send("There are currently no existing tests")
-            return
-        }
+            if(count == 0) {
+                msg.channel.send("There are currently no existing tests")
+                return
+            }
+        })
     }
  }
  function seeQuizzes(msg) {
@@ -330,17 +309,17 @@ let hw = []
         return
     }
     else {
-        let count = 0
-        for(var n = 0; n < quizzes.length; n++) {
-            if(quizzes[n].channelid == msg.channel.id) {
-                msg.channel.send("Quiz " + (count+1) + ": " + quizzes[n].name + " - " + quizzes[n].month + "/" + quizzes[n].date + " - " + quizzes[n].time)
+        quizzes.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
+            let count = 0
+            for(item of docs) {
+                msg.channel.send("Quiz " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.time)
                 count++
             }
-        }
-        if(count == 0) {
-            msg.channel.send("There are currently no existing quizzes")
-            return
-        }
+            if(count == 0) {
+                msg.channel.send("There are currently no existing quizzes")
+                return
+            }
+        })
     }
  }
  function seeHomeworks(msg) {
@@ -349,17 +328,17 @@ let hw = []
         return
     }
     else {
-        let count = 0
-        for(var n = 0; n < hw.length; n++) {
-            if(hw[n].channelid == msg.channel.id) {
-                msg.channel.send("Homework " + (count+1) + ": " + hw[n].name + " - " + hw[n].month + "/" + hw[n].date + " - " + hw[n].time)
+        hw.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
+            let count = 0
+            for(item of docs) {
+                msg.channel.send("Homework " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.time)
                 count++
             }
-        }
-        if(count == 0) {
-            msg.channel.send("There are currently no existing homeworks")
-            return
-        }
+            if(count == 0) {
+                msg.channel.send("There are currently no existing homeworks")
+                return
+            }
+        })
     }
  }
 

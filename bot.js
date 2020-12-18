@@ -1,7 +1,6 @@
 let Discord = require('discord.js')
 require('dotenv').config()
 let client = new Discord.Client()
-let d = new Date()
 let { processCommand, classes, tests, quizzes, hw } = require("./commands.js")
 
 client.login(process.env.DISCORD_KEY)
@@ -33,6 +32,7 @@ client.on('message', (msg) => {
 
 function reminder() {
     // get today's date, month, hour, and day
+    let d = new Date()
     let date = d.getDate()
     let month = d.getMonth() + 1
     let day
@@ -53,136 +53,138 @@ function reminder() {
             day = "F"
             break
         default: 
-            day = null;
+            day = null
     }
 
     // Every 24 hours, send a message to the channels that have classes today, or tests/quizzes/hw coming up soon
     setInterval(() => {
-       if(classes.length >= 1) {
-           for(var n = 0; n < classes.length; n++) {
-               if(classes[n].day === day) {
-                    let channel = client.channels.cache.get(classes[n].channelid)
-                    let time
-                    if(classes[n].time == 0) {
-                        time = "12 AM"
-                    }
-                    else if(classes[n].time == 12) {
-                        time = "12 PM"
-                    }
-                    else if(classes[n].time < 12) {
-                        time = classes[n].time + " AM"
-                    }
-                    else {
-                        time = classes[n].time%12 + " PM"
-                    }
-                    channel.send("❗ @everyone There is a " + classes[n].name + " class today at " + time + ", " + classes[n].link + " ❗");
-               }
-           }
-       }
-       if(tests.length >= 1) {
-            for(var n = 0; n < tests.length; n++) {
-                let channel = client.channels.cache.get(tests[n].channelid)
-                if(tests[n].time == 0) {
+        classes.find({ day: day }, function (err, docs) {
+            for(theClass of docs) {
+                let channel = client.channels.cache.get(theClass.channelid)
+                let time
+                if(theClass.time == 0) {
                     time = "12 AM"
                 }
-                else if(tests[n].time == 12) {
+                else if(theClass.time == 12) {
                     time = "12 PM"
                 }
-                else if(tests[n].time < 12) {
-                    time = tests[n].time + " AM"
+                else if(theClass.time < 12) {
+                    time = theClass.time + " AM"
+                }
+                else {
+                    time = theClass.time%12 + " PM"
+                }
+                channel.send("❗ @everyone There is a " + theClass.name + " class today at " + time + ", " + theClass.link + " ❗")
+            }
+        }) 
+        tests.find({}, function (err, docs) {
+            for(test of docs) {
+                let channel = client.channels.cache.get(test.channelid)
+                if(test.time == 0) {
+                    time = "12 AM"
+                }
+                else if(test.time == 12) {
+                    time = "12 PM"
+                }
+                else if(test.time < 12) {
+                    time = test.time + " AM"
                     }
                 else {
-                    time = tests[n].time%12 + " PM"
+                    time = test.time%12 + " PM"
                 }
                 let theDate
-                if(tests[n].month == month && tests[n].date == date) {
+                if(test.month == month && test.date == date) {
                     theDate = "Today"
                 }
                 else {
-                    theDate = "on " + tests[n].month + "/" + tests[n].date
+                    theDate = "on " + test.month + "/" + test.date
                 }
-                channel.send("❗ @everyone There is a test for " + tests[n].name + " " + theDate + " at " + time + " ❗")
-                }
-        }
-        if(quizzes.length >= 1) {
-            for(var n = 0; n < quizzes.length; n++) {
-                let channel = client.channels.cache.get(quizzes[n].channelid)
-                if(quizzes[n].time == 0) {
+                channel.send("❗ @everyone There is a test for " + test.name + " " + theDate + " at " + time + " ❗")
+            }
+        })
+        quizzes.find({}, function (err, docs) {
+            for(quiz of docs) {
+                let channel = client.channels.cache.get(quiz.channelid)
+                if(quiz.time == 0) {
                     time = "12 AM"
                 }
-                else if(quizzes[n].time == 12) {
+                else if(quiz.time == 12) {
                     time = "12 PM"
                 }
-                else if(quizzes[n].time < 12) {
-                    time = quizzes[n].time + " AM"
+                else if(quiz.time < 12) {
+                    time = quiz.time + " AM"
                  }
                 else {
-                    time = quizzes[n].time%12 + " PM"
+                    time = quiz.time%12 + " PM"
                 }
                 let theDate
-                if(quizzes[n].month == month && quizzes[n].date == date) {
+                if(quiz.month == month && quiz.date == date) {
                     theDate = "Today"
                 }
                 else {
-                    theDate = "on " + quizzes[n].month + "/" + quizzes[n].date
+                    theDate = "on " + quiz.month + "/" + quiz.date
                 }
-                channel.send("❗ @everyone There is a quiz for " + quizzes[n].name + " " + theDate + " at " + time + " ❗")
+                channel.send("❗ @everyone There is a quiz for " + quiz.name + " " + theDate + " at " + time + " ❗")
             }
-           }
-        if(hw.length >= 1) {
-            for(var n = 0; n < hw.length; n++) {
-                let channel = client.channels.cache.get(hw[n].channelid)
-                if(hw[n].time == 0) {
+        }) 
+        hw.find({}, function (err, docs) {
+            for(homework of docs) {
+                let channel = client.channels.cache.get(homework.channelid)
+                if(homework.time == 0) {
                     time = "12 AM"
                 }
-                else if(hw[n].time == 12) {
+                else if(homework.time == 12) {
                     time = "12 PM"
                 }
-                else if(hw[n].time < 12) {
-                    time = hw[n].time + " AM"
+                else if(homework.time < 12) {
+                    time = homework.time + " AM"
                  }
                 else {
-                    time = hw[n].time%12 + " PM"
+                    time = homework.time%12 + " PM"
                 }
                 let theDate
-                if(hw[n].month == month && hw[n].date == date) {
+                if(homework.month == month && homework.date == date) {
                     theDate = "Today"
                 }
                 else {
-                    theDate = "on " + hw[n].month + "/" + hw[n].date
+                    theDate = "on " + homework.month + "/" + homework.date
                 }
-                channel.send("❗ @everyone Homework is due for " + hw[n].name + " " + theDate + " at " + time + " ❗")
+                channel.send("❗ @everyone Homework is due for " + homework.name + " " + theDate + " at " + time + " ❗")
             }
-        }
+        })
       }, 86400000)
  }
 
 function checkDates() {
     // Every 12 hours, check if we've passed the dates on tests, quizzes, and hw. If so, we remove it from the array
     setInterval(() => {
-        let date = d.getDate();
-        let month = d.getMonth() + 1;
+        let d = new Date()
+        let date = d.getDate()
+        let month = d.getMonth() + 1
         let hour = d.getHours()
-        if(tests.length >= 1) {
-            for(var n = 0; n < tests.length; n++) {
-                if(tests[n].month == month && tests[n].date == date && hour > tests[n].time) {
-                    removeTest([tests[n].name])
+        tests.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
+            for(test of docs) {
+                if(test.time < hour) {
+                    tests.remove({ _id: test._id }, {}, function (err, numRemoved) {
+                    });
                 }
             }
-        }
-        if(quizzes.length >= 1) {
-            for(var n = 0; n < quizzes.length; n++) {
-                if(quizzes[n].month == month && quizzes[n].date == date && hour > quizzes[n].time) {
-                    removeQuiz([quizzes[n].name])
+        })
+        quizzes.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
+            for(quiz of docs) {
+                if(quiz.time < hour) {
+                    quizzes.remove({ _id: quiz._id }, {}, function (err, numRemoved) {
+                    });
                 }
             }
-        }
-        if(hw.length >= 1) {
-            for(var n = 0; n < hw.length; n++) {
-                if(hw[n].month == month && hw[n].date == date && hour > hw[n].time) {
-                    removeHw([hw[n].name])
+        })
+        hw.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
+            for(homework of docs) {
+                if(homework.time < hour) {
+                    hw.remove({ _id: homework._id }, {}, function (err, numRemoved) {
+                    });
                 }
             }
-        }
+        })
     }, 43200000)
 }
