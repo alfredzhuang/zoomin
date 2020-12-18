@@ -10,6 +10,8 @@ client.on('ready', () => {
 
     client.user.setActivity("with Javascript")
 
+    let date = d.getDate();
+    let month = d.getMonth() + 1;
     let hour = d.getHours();
     let day
     switch(d.getDay()) {
@@ -30,11 +32,9 @@ client.on('ready', () => {
             break
         default: 
             day = null;
-            break
     }
-
      setInterval(() => {
-         console.log(classes)
+         console.log(hw)
      // bot-testing channel: 788246311731724328
        if(classes.length >= 1) {
            for(var n = 0; n < classes.length; n++) {
@@ -54,19 +54,58 @@ client.on('ready', () => {
        if(tests.length >= 1) {
          for(var n = 0; n < tests.length; n++) {
            let channel = client.channels.cache.get(tests[n].channelid)
-           channel.send(tests[n].name);
+           if(tests[n] % 12 === 0) {
+            time = tests[n].time + " AM"
+            }
+           else {
+            time = tests[n].time%12 + " PM"
+           }
+           let theDate
+           if(tests[n].month == month && tests[n].date == date) {
+               theDate = "Today"
+           }
+           else {
+               theDate = "on " + tests[n].month + "/" + tests[n].date
+           }
+           channel.send("@everyone There is a test for " + tests[n].name + " " + theDate + " at " + time)
          }
         }
         if(quizzes.length >= 1) {
             for(var n = 0; n < quizzes.length; n++) {
-              let channel = client.channels.cache.get(quizzes[n].channelid)
-              channel.send(quizzes[n].name);
+                let channel = client.channels.cache.get(quizzes[n].channelid)
+                if(quizzes[n] % 12 === 0) {
+                 time = quizzes[n].time + " AM"
+                 }
+                else {
+                 time = quizzes[n].time%12 + " PM"
+                }
+                let theDate
+                if(quizzes[n].month == month && quizzes[n].date == date) {
+                    theDate = "Today"
+                }
+                else {
+                    theDate = "on " + quizzes[n].month + "/" + quizzes[n].date
+                }
+                channel.send("@everyone There is a quiz for " + quizzes[n].name + " " + theDate + " at " + time)
             }
            }
         if(hw.length >= 1) {
             for(var n = 0; n < hw.length; n++) {
-            let channel = client.channels.cache.get(hw[n].channelid)
-            channel.send(hw[n].name);
+                let channel = client.channels.cache.get(hw[n].channelid)
+                if(hw[n] % 12 === 0) {
+                 time = hw[n].time + " AM"
+                 }
+                else {
+                 time = hw[n].time%12 + " PM"
+                }
+                let theDate
+                if(hw[n].month == month && hw[n].date == date) {
+                    theDate = "Today"
+                }
+                else {
+                    theDate = "on " + hw[n].month + "/" + hw[n].date
+                }
+                channel.send("@everyone Homework is due for " + hw[n].name + " " + theDate + " at " + time)
             }
         }
       }, 10000)
@@ -130,11 +169,11 @@ function help(msg) {
     msg.channel.send("I'm not sure what you need help with. Try these commands: \n"
                     + "`!addclass [class name] [zoom link] [day of the week (M-T-W-TH-F)] [meeting time from 0-23]` \n"
                     + "`!removeclass [class name]` \n"
-                    + "`!addtest [class name] [day of the week (M-T-W-TH-F)] [time from 0-23]` \n"
+                    + "`!addtest [class name] test date [month 1-12)] [date (1-31)] [time from 0-23]` \n"
                     + "`!removetest [class name]` \n"
-                    + "`!addquiz [class name] [day of the week (M-T-W-TH-F)] [time from 0-23]` \n" 
+                    + "`!addquiz [class name] quiz date [month (1-12)] [date (1-31)] [time from 0-23]` \n" 
                     + "`!removequiz [class name]` \n" 
-                    + "`!addhw [class name] [day of the week (M-T-W-TH-F)] [due date (time from 0-23)]` \n" 
+                    + "`!addhw [class name] deadline [month (1-12)] [date (1-31)] [time from 0-23]` \n" 
                     + "`!removehw [class name]`\n"
                     + "or if you want to see the code, use `!code`")
 }
@@ -157,7 +196,7 @@ let hw = []
         msg.channel.send("Invalid day, try M-T-W-TH-F") 
         return
     }
-    else if(arguments[3] <= 0 || arguments[3] > 24) {
+    else if(arguments[3] < 0 || arguments[3] > 23) {
         msg.channel.send("Invalid time, try between 0-23")
         return
     }
@@ -195,22 +234,27 @@ let hw = []
  }
 
  function addTest(arguments, msg) {
-    if(arguments.length != 3) {
-        msg.channel.send("Invalid arguments. Try `!addtest [class of test] [day of the week (M-T-W-TH-F)] [time from 0-23]`")
+    if(arguments.length != 4) {
+        msg.channel.send("Invalid arguments. Try `!addtest [class of test] test date [month (1-12)] [date (1-31)] [time from 0-23]`")
         return
     }
-    else if(arguments[1] != "M" && arguments[1] != "T" && arguments[1] != "W" && arguments[1] != "TH" && arguments[1] != "F") {
-        msg.channel.send("Invalid day, try M-T-W-TH-F") 
+    else if(arguments[1] < 1 || arguments[1] > 12) {
+        msg.channel.send("Invalid month, try between 1-12") 
         return
     }
-    else if(arguments[2] <= 0 || arguments[2] > 24) {
+    else if(arguments[2] < 1 || arguments[2] > 31) {
+        msg.channel.send("Invalid date, try between 1-31")
+        return
+    }
+    else if(arguments[3] < 0 || arguments[3] > 23) {
         msg.channel.send("Invalid time, try between 0-23")
         return
     }
     let newTest = {
         name: arguments[0],
-        day:  arguments[1],
-        time: arguments[2],
+        month:  arguments[1],
+        date: arguments[2],
+        time: arguments[3],
         channelid: msg.channel.id
     }
     tests.push(newTest)
@@ -243,22 +287,27 @@ let hw = []
     }
  }
  function addQuiz(arguments, msg) {
-    if(arguments.length != 3) {
-        msg.channel.send("Invalid arguments. Try `!addquiz [class of test] [day of the week (M-T-W-TH-F)] [time from 0-23]`")
+    if(arguments.length != 4) {
+        msg.channel.send("Invalid arguments. Try `!addquiz [class of test] quiz date [month (1-12)] [date (1-31)] [time from 0-23]`")
         return
     }
-    else if(arguments[1] != "M" && arguments[1] != "T" && arguments[1] != "W" && arguments[1] != "TH" && arguments[1] != "F") {
-        msg.channel.send("Invalid day, try M-T-W-TH-F") 
+    else if(arguments[1] < 1 || arguments[1] > 12) {
+        msg.channel.send("Invalid month, try between 1-12") 
         return
     }
-    else if(arguments[2] <= 0 || arguments[2] > 24) {
+    else if(arguments[2] < 1 || arguments[2] > 31) {
+        msg.channel.send("Invalid date, try between 1-31")
+        return
+    }
+    else if(arguments[3] < 0 || arguments[3] > 23) {
         msg.channel.send("Invalid time, try between 0-23")
         return
     }
     let newQuiz = {
         name: arguments[0],
-        day:  arguments[1],
-        time: arguments[2],
+        month:  arguments[1],
+        date: arguments[2],
+        time: arguments[3],
         channelid: msg.channel.id
     }
     quizzes.push(newQuiz)
@@ -289,22 +338,27 @@ let hw = []
     }
  }
  function addHw(arguments, msg) {
-    if(arguments.length != 3) {
-        msg.channel.send("Invalid arguments. Try `!addhw [class of test] [day of the week (M-T-W-TH-F)] [time from 0-23]`")
+    if(arguments.length != 4) {
+        msg.channel.send("Invalid arguments. Try `!addhw [class of test] deadline [month (1-12)] [date (1-31)] [time from 0-23]`")
         return
     }
-    else if(arguments[1] != "M" && arguments[1] != "T" && arguments[1] != "W" && arguments[1] != "TH" && arguments[1] != "F") {
-        msg.channel.send("Invalid day, try M-T-W-TH-F") 
+    else if(arguments[1] < 1 || arguments[1] > 12) {
+        msg.channel.send("Invalid month, try between 1-12") 
         return
     }
-    else if(arguments[2] <= 0 || arguments[2] > 24) {
+    else if(arguments[2] < 1 || arguments[2] > 31) {
+        msg.channel.send("Invalid date, try between 1-31")
+        return
+    }
+    else if(arguments[3] < 0 || arguments[3] > 23) {
         msg.channel.send("Invalid time, try between 0-23")
         return
     }
     let newHw = {
         name: arguments[0],
-        day:  arguments[1],
-        time: arguments[2],
+        month:  arguments[1],
+        date: arguments[2],
+        time: arguments[3],
         channelid: msg.channel.id
     }
     hw.push(newHw)
