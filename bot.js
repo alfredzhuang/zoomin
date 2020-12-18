@@ -5,6 +5,12 @@ let d = new Date()
 
 client.login(process.env.DISCORD_KEY)
 
+// Bot join message
+client.on('guildCreate', guild => {
+    let channel = guild.channels.cache.find(channel => channel.type === 'text' && channel.permissionsFor(guild.me).has('SEND_MESSAGES'))
+    channel.send("Hi! I'm Zoomin'! I'm a bot that specializes in creating reminders for students! Check out what I can do with `!help`")
+})
+
 client.on('ready', () => {
     console.log("Connected as " + client.user.tag)
 
