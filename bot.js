@@ -154,8 +154,7 @@ function reminder() {
                 channel.send("❗ @everyone Homework is due for " + hw[n].name + " " + theDate + " at " + time + " ❗")
             }
         }
-      }, 30000)
-      //86400000
+      }, 86400000)
  }
 
 function checkDates() {
@@ -185,6 +184,5 @@ function checkDates() {
                 }
             }
         }
-    }, 10000)
-    //43200000
+    }, 43200000)
 }
