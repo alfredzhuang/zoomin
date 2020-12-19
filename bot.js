@@ -35,26 +35,26 @@ function reminder() {
     let d = new Date()
     let date = d.getDate()
     let month = d.getMonth() + 1
-    let day
-    switch(d.getDay()) {
-        case 1:
-            day = "M"
-            break
-        case 2:
-            day = "T"
-            break
-        case 3:
-            day = "W"
-            break
-        case 4:
-            day = "TH"
-            break
-        case 5:
-            day = "F"
-            break
-        default: 
-            day = null
-    }
+    let day = "W"
+    // switch(d.getDay()) {
+    //     case 1:
+    //         day = "M"
+    //         break
+    //     case 2:
+    //         day = "T"
+    //         break
+    //     case 3:
+    //         day = "W"
+    //         break
+    //     case 4:
+    //         day = "TH"
+    //         break
+    //     case 5:
+    //         day = "F"
+    //         break
+    //     default: 
+    //         day = null
+    // }
 
     // Every 24 hours, send a message to the channels that have classes today, or tests/quizzes/hw coming up soon
     setInterval(() => {
@@ -62,35 +62,43 @@ function reminder() {
             for(theClass of docs) {
                 let channel = client.channels.cache.get(theClass.channelid)
                 let time
-                if(theClass.time == 0) {
-                    time = "12 AM"
+                if(theClass.hour == 0) {
+                    time = "12:" + theClass.minutes + " AM"
                 }
-                else if(theClass.time == 12) {
-                    time = "12 PM"
+                else if(theClass.hour == 12) {
+                    time = "12:" + theClass.minutes + " PM"
                 }
-                else if(theClass.time < 12) {
-                    time = theClass.time + " AM"
+                else if(theClass.hour < 12) {
+                    time = theClass.hour + ":" + theClass.minutes + " AM"
                 }
                 else {
-                    time = theClass.time%12 + " PM"
+                    time = theClass.hour%12 + ":" + theClass.minutes + " PM"
                 }
-                channel.send("❗ @everyone There is a " + theClass.name + " class today at " + time + ", " + theClass.link + " ❗")
+                let person
+                if(theClass.decision == "Y" || theClass.decision == "y") {
+                    person = "@everyone"
+                }
+                else {
+                    person = theClass.user
+                }
+                channel.send("❗ " + person + " There is a " + theClass.name + " class today at " + time + ", " + theClass.link + " ❗")
             }
         }) 
         tests.find({}, function (err, docs) {
             for(test of docs) {
                 let channel = client.channels.cache.get(test.channelid)
-                if(test.time == 0) {
-                    time = "12 AM"
+                let time
+                if(test.hour == 0) {
+                    time = "12:" + test.minutes + " AM"
                 }
-                else if(test.time == 12) {
-                    time = "12 PM"
+                else if(test.hour == 12) {
+                    time = "12:" + test.minutes + " PM"
                 }
-                else if(test.time < 12) {
-                    time = test.time + " AM"
-                    }
+                else if(test.hour < 12) {
+                    time = test.hour + ":" + test.minutes + " AM"
+                }
                 else {
-                    time = test.time%12 + " PM"
+                    time = test.hour%12 + ":" + test.minutes + " PM"
                 }
                 let theDate
                 if(test.month == month && test.date == date) {
@@ -99,23 +107,31 @@ function reminder() {
                 else {
                     theDate = "on " + test.month + "/" + test.date
                 }
-                channel.send("❗ @everyone There is a test for " + test.name + " " + theDate + " at " + time + " ❗")
+                let person
+                if(theClass.decision == "Y" || theClass.decision == "y") {
+                    person = "@everyone"
+                }
+                else {
+                    person = theClass.user
+                }
+                channel.send("❗ " + person + " There is a test for " + test.name + " " + theDate + " at " + time + " ❗")
             }
         })
         quizzes.find({}, function (err, docs) {
             for(quiz of docs) {
                 let channel = client.channels.cache.get(quiz.channelid)
-                if(quiz.time == 0) {
-                    time = "12 AM"
+                let time
+                if(quiz.hour == 0) {
+                    time = "12:" + quiz.minutes + " AM"
                 }
-                else if(quiz.time == 12) {
-                    time = "12 PM"
+                else if(quiz.hour == 12) {
+                    time = "12:" + quiz.minutes + " PM"
                 }
-                else if(quiz.time < 12) {
-                    time = quiz.time + " AM"
-                 }
+                else if(quiz.hour < 12) {
+                    time = quiz.hour + ":" + quiz.minutes + " AM"
+                }
                 else {
-                    time = quiz.time%12 + " PM"
+                    time = quiz.hour%12 + ":" + quiz.minutes + " PM"
                 }
                 let theDate
                 if(quiz.month == month && quiz.date == date) {
@@ -124,23 +140,31 @@ function reminder() {
                 else {
                     theDate = "on " + quiz.month + "/" + quiz.date
                 }
-                channel.send("❗ @everyone There is a quiz for " + quiz.name + " " + theDate + " at " + time + " ❗")
+                let person
+                if(theClass.decision == "Y" || theClass.decision == "y") {
+                    person = "@everyone"
+                }
+                else {
+                    person = theClass.user
+                }
+                channel.send("❗ " + person + " There is a quiz for " + quiz.name + " " + theDate + " at " + time + " ❗")
             }
         }) 
         hw.find({}, function (err, docs) {
             for(homework of docs) {
                 let channel = client.channels.cache.get(homework.channelid)
-                if(homework.time == 0) {
-                    time = "12 AM"
+                let time
+                if(homework.hour == 0) {
+                    time = "12:" + homework.minutes + " AM"
                 }
-                else if(homework.time == 12) {
-                    time = "12 PM"
+                else if(homework.hour == 12) {
+                    time = "12:" + homework.minutes + " PM"
                 }
-                else if(homework.time < 12) {
-                    time = homework.time + " AM"
-                 }
+                else if(homework.hour < 12) {
+                    time = homework.hour + ":" + homework.minutes + " AM"
+                }
                 else {
-                    time = homework.time%12 + " PM"
+                    time = homework.hour%12 + ":" + homework.minutes + " PM"
                 }
                 let theDate
                 if(homework.month == month && homework.date == date) {
@@ -149,7 +173,14 @@ function reminder() {
                 else {
                     theDate = "on " + homework.month + "/" + homework.date
                 }
-                channel.send("❗ @everyone Homework is due for " + homework.name + " " + theDate + " at " + time + " ❗")
+                let person
+                if(theClass.decision == "Y" || theClass.decision == "y") {
+                    person = "@everyone"
+                }
+                else {
+                    person = theClass.user
+                }
+                channel.send("❗ " + person + " Homework is due for " + homework.name + " " + theDate + " at " + time + " ❗")
             }
         })
       }, 86400000)
@@ -164,7 +195,7 @@ function checkDates() {
         let hour = d.getHours()
         tests.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
             for(test of docs) {
-                if(test.time < hour) {
+                if(test.hour < hour) {
                     tests.remove({ _id: test._id }, {}, function (err, numRemoved) {
                     });
                 }
@@ -172,7 +203,7 @@ function checkDates() {
         })
         quizzes.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
             for(quiz of docs) {
-                if(quiz.time < hour) {
+                if(quiz.hour < hour) {
                     quizzes.remove({ _id: quiz._id }, {}, function (err, numRemoved) {
                     });
                 }
@@ -180,7 +211,7 @@ function checkDates() {
         })
         hw.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
             for(homework of docs) {
-                if(homework.time < hour) {
+                if(homework.hour < hour) {
                     hw.remove({ _id: homework._id }, {}, function (err, numRemoved) {
                     });
                 }

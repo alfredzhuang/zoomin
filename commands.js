@@ -65,13 +65,13 @@ function processCommand(msg) {
 
 function help(msg) {
     msg.channel.send("I'm not sure what you need help with. Try these commands: \n"
-                    + "`!addclass [class name] [zoom link] [day of the week (M-T-W-TH-F)] [meeting time from 0-23]` \n"
+                    + "`!addclass [class name] [zoom link] [day of the week (M-T-W-TH-F)] [meeting time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n"
                     + "`!removeclass [class name]` \n"
-                    + "`!addtest [class name] test date [month 1-12)] [date (1-31)] [time from 0-23]` \n"
+                    + "`!addtest [class name] test date [month 1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n"
                     + "`!removetest [class name]` \n"
-                    + "`!addquiz [class name] quiz date [month (1-12)] [date (1-31)] [time from 0-23]` \n" 
+                    + "`!addquiz [class name] quiz date [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n" 
                     + "`!removequiz [class name]` \n" 
-                    + "`!addhw [class name] deadline [month (1-12)] [date (1-31)] [time from 0-23]` \n" 
+                    + "`!addhw [class name] deadline [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n" 
                     + "`!removehw [class name]`\n"
                     + "To see the existing list of classes, use `!seeclasses`\n"
                     + "To see the existing list of tests, use `!seetests`\n"
@@ -84,27 +84,41 @@ function code(msg) {
 }
 
  function addClass(arguments, msg) {
-    if(arguments.length != 4) {
-        msg.channel.send("Invalid arguments. Try `!addclass [class name] [zoom link] [day of the week] [time from 0-23]`")
+    if(arguments.length != 5) {
+        msg.channel.send("Invalid arguments. Try `!addclass [class name] [zoom link] [day of the week] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]`")
         return
     }
     else if(arguments[2] != "M" && arguments[2] != "T" && arguments[2] != "W" && arguments[2] != "TH" && arguments[2] != "F") {
         msg.channel.send("Invalid day, try M-T-W-TH-F") 
         return
     }
-    else if(arguments[3] < 0 || arguments[3] > 23) {
-        msg.channel.send("Invalid time, try between 0-23")
+    else if(!arguments[3].includes(":")) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
+        return
+    }
+    else if(arguments[4] != "Y" && arguments[4] != "y" && arguments[4] != "N" && arguments[4] != "n") {
+        msg.channel.send("Invalid Letter, try Y or N")
+        return
+    }
+    let time = arguments[3].split(":")
+    if(time[0] < 0 || time[0] > 23) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
+        return
+    }
+    else if(time[1] < 0 || time[1] > 59 || time[1].length != 2) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
         return
     }
     let newClass = {
         name: arguments[0],
         link: arguments[1],
         day:  arguments[2],
-        time: arguments[3],
+        hour: time[0],
+        minutes: time[1],
+        decision: arguments[4], 
         user: msg.author.toString(),
         channelid: msg.channel.id
     }
-    msg.react("👍")
     classes.insert(newClass)
     msg.channel.send("Class added!")
 }
@@ -115,7 +129,6 @@ function code(msg) {
      }
      classes.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
         if(numRemoved == 1) {
-            msg.react("👍")
             msg.channel.send("Class removed!")
             return
         }
@@ -127,8 +140,8 @@ function code(msg) {
  }
 
  function addTest(arguments, msg) {
-    if(arguments.length != 4) {
-        msg.channel.send("Invalid arguments. Try `!addtest [class of test] test date [month (1-12)] [date (1-31)] [time from 0-23]`")
+    if(arguments.length != 5) {
+        msg.channel.send("Invalid arguments. Try `!addtest [class of test] test date [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]`")
         return
     }
     else if(arguments[1] < 1 || arguments[1] > 12) {
@@ -139,19 +152,33 @@ function code(msg) {
         msg.channel.send("Invalid date, try between 1-31")
         return
     }
-    else if(arguments[3] < 0 || arguments[3] > 23) {
-        msg.channel.send("Invalid time, try between 0-23")
+    else if(!arguments[3].includes(":")) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
+        return
+    }
+    else if(arguments[4] != "Y" && arguments[4] != "y" && arguments[4] != "N" && arguments[4] != "n") {
+        msg.channel.send("Invalid Letter, try Y or N")
+        return
+    }
+    let time = arguments[3].split(":")
+    if(time[0] < 0 || time[0] > 23) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
+        return
+    }
+    else if(time[1] < 0 || time[1] > 59 || time[1].length != 2) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
         return
     }
     let newTest = {
         name: arguments[0],
         month:  arguments[1],
         date: arguments[2],
-        time: arguments[3],
+        hour: time[0],
+        minutes: time[1],
+        decision: arguments[4],
         user: msg.author.toString(),
         channelid: msg.channel.id
     }
-    msg.react("👍")
     tests.insert(newTest)
     msg.channel.send("Test added!")
  }
@@ -162,7 +189,6 @@ function code(msg) {
     }
     tests.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
         if(numRemoved == 1) {
-            msg.react("👍")
             msg.channel.send("Test removed!")
             return
         }
@@ -173,8 +199,8 @@ function code(msg) {
     })
  }
  function addQuiz(arguments, msg) {
-    if(arguments.length != 4) {
-        msg.channel.send("Invalid arguments. Try `!addquiz [class of test] quiz date [month (1-12)] [date (1-31)] [time from 0-23]`")
+    if(arguments.length != 5) {
+        msg.channel.send("Invalid arguments. Try `!addquiz [class of test] quiz date [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]`")
         return
     }
     else if(arguments[1] < 1 || arguments[1] > 12) {
@@ -185,19 +211,33 @@ function code(msg) {
         msg.channel.send("Invalid date, try between 1-31")
         return
     }
-    else if(arguments[3] < 0 || arguments[3] > 23) {
-        msg.channel.send("Invalid time, try between 0-23")
+    else if(!arguments[3].includes(":")) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
+        return
+    }
+    else if(arguments[4] != "Y" && arguments[4] != "y" && arguments[4] != "N" && arguments[4] != "n") {
+        msg.channel.send("Invalid Letter, try Y or N")
+        return
+    }
+    let time = arguments[3].split(":")
+    if(time[0] < 0 || time[0] > 23) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
+        return
+    }
+    else if(time[1] < 0 || time[1] > 59 || time[1].length != 2) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
         return
     }
     let newQuiz = {
         name: arguments[0],
         month:  arguments[1],
         date: arguments[2],
-        time: arguments[3],
+        hour: time[0],
+        minutes: time[1],
+        decision: arguments[4],
         user: msg.author.toString(),
         channelid: msg.channel.id
     }
-    msg.react("👍")
     quizzes.insert(newQuiz)
     msg.channel.send("Quiz added!")
 }
@@ -208,7 +248,6 @@ function code(msg) {
     }
     quizzes.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
         if(numRemoved == 1) {
-            msg.react("👍")
             msg.channel.send("Quiz removed!")
             return
         }
@@ -219,8 +258,8 @@ function code(msg) {
     })
  }
  function addHw(arguments, msg) {
-    if(arguments.length != 4) {
-        msg.channel.send("Invalid arguments. Try `!addhw [class of test] deadline [month (1-12)] [date (1-31)] [time from 0-23]`")
+    if(arguments.length != 5) {
+        msg.channel.send("Invalid arguments. Try `!addhw [class of test] deadline [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]`")
         return
     }
     else if(arguments[1] < 1 || arguments[1] > 12) {
@@ -231,19 +270,33 @@ function code(msg) {
         msg.channel.send("Invalid date, try between 1-31")
         return
     }
-    else if(arguments[3] < 0 || arguments[3] > 23) {
-        msg.channel.send("Invalid time, try between 0-23")
+    else if(!arguments[3].includes(":")) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
+        return
+    }
+    else if(arguments[4] != "Y" && arguments[4] != "y" && arguments[4] != "N" && arguments[4] != "n") {
+        msg.channel.send("Invalid Letter, try Y or N")
+        return
+    }
+    let time = arguments[3].split(":")
+    if(time[0] < 0 || time[0] > 23) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
+        return
+    }
+    else if(time[1] < 0 || time[1] > 59 || time[1].length != 2) {
+        msg.channel.send("Invalid time, try between 0:00-23:59")
         return
     }
     let newHw = {
         name: arguments[0],
         month: arguments[1],
         date: arguments[2],
-        time: arguments[3],
+        hour: time[0],
+        minutes: time[1],
+        decision: arguments[4],
         user: msg.author.toString(),
         channelid: msg.channel.id
     }
-    msg.react("👍")
     hw.insert(newHw)
     msg.channel.send("Homework added!")
  }
@@ -254,7 +307,6 @@ function code(msg) {
     }
     hw.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
         if(numRemoved == 1) {
-            msg.react("👍")
             msg.channel.send("Homework removed!")
             return
         }
@@ -274,7 +326,7 @@ function code(msg) {
         classes.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
             let count = 0
             for(item of docs) {
-                msg.channel.send("Class " + (count+1) + ": " + item.name + " - " + item.link + " - " + item.day + " - " + item.time)
+                msg.channel.send("Class " + (count+1) + ": " + item.name + " - " + item.link + " - " + item.day + " - " + item.hour + ":" + item.minutes)
                 count++
             }
             if(count == 0) {
@@ -293,7 +345,7 @@ function code(msg) {
         tests.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
             let count = 0
             for(item of docs) {
-                msg.channel.send("Test " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.time)
+                msg.channel.send("Test " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.hour + ":" + item.minutes)
                 count++
             }
             if(count == 0) {
@@ -312,7 +364,7 @@ function code(msg) {
         quizzes.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
             let count = 0
             for(item of docs) {
-                msg.channel.send("Quiz " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.time)
+                msg.channel.send("Quiz " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.hour + ":" + item.minutes)
                 count++
             }
             if(count == 0) {
@@ -331,7 +383,7 @@ function code(msg) {
         hw.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
             let count = 0
             for(item of docs) {
-                msg.channel.send("Homework " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.time)
+                msg.channel.send("Homework " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.hour + ":" + item.minutes)
                 count++
             }
             if(count == 0) {
