@@ -35,26 +35,26 @@ function reminder() {
     let d = new Date()
     let date = d.getDate()
     let month = d.getMonth() + 1
-    let day = "W"
-    // switch(d.getDay()) {
-    //     case 1:
-    //         day = "M"
-    //         break
-    //     case 2:
-    //         day = "T"
-    //         break
-    //     case 3:
-    //         day = "W"
-    //         break
-    //     case 4:
-    //         day = "TH"
-    //         break
-    //     case 5:
-    //         day = "F"
-    //         break
-    //     default: 
-    //         day = null
-    // }
+    let day
+    switch(d.getDay()) {
+        case 1:
+            day = "M"
+            break
+        case 2:
+            day = "T"
+            break
+        case 3:
+            day = "W"
+            break
+        case 4:
+            day = "TH"
+            break
+        case 5:
+            day = "F"
+            break
+        default: 
+            day = null
+    }
 
     // Every 24 hours, send a message to the channels that have classes today, or tests/quizzes/hw coming up soon
     setInterval(() => {

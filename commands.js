@@ -70,11 +70,8 @@ function help(msg) {
                     + "`!addquiz [class name] quiz date [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n" 
                     + "`!addhw [class name] deadline [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n" 
                     + "`!removeclass [class name]` `!removetest [class name]` `!removequiz [class name]` `!removehw [class name]` \n"
-                    + "To see the existing list of classes, use `!seeclasses`\n"
-                    + "To see the existing list of tests, use `!seetests`\n"
-                    + "To see the existing list of quizzes, use `!seequizzes`\n"
-                    + "To see the existing list of homework, use `!seehomeworks`\n"
-                    + "or if you want to see the code, use `!code`")
+                    + "To see your already existing list of entries, use `!seeclasses` `!seetests` `!seequizzes` or `!seehomeworks`\n"
+                    + "or if you want to see how the bot was coded, use `!code`")
 }
 function code(msg) {
     msg.channel.send("This bot was coded using Javascript, you can look at the documentation at https://github.com/alfredzhuang/zoomin")
