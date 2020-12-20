@@ -66,13 +66,10 @@ function processCommand(msg) {
 function help(msg) {
     msg.channel.send("I'm not sure what you need help with. Try these commands: \n"
                     + "`!addclass [class name] [zoom link] [day of the week (M-T-W-TH-F)] [meeting time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n"
-                    + "`!removeclass [class name]` \n"
                     + "`!addtest [class name] test date [month 1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n"
-                    + "`!removetest [class name]` \n"
                     + "`!addquiz [class name] quiz date [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n" 
-                    + "`!removequiz [class name]` \n" 
                     + "`!addhw [class name] deadline [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n" 
-                    + "`!removehw [class name]`\n"
+                    + "`!removeclass [class name]` `!removetest [class name]` `!removequiz [class name]` `!removehw [class name]` \n"
                     + "To see the existing list of classes, use `!seeclasses`\n"
                     + "To see the existing list of tests, use `!seetests`\n"
                     + "To see the existing list of quizzes, use `!seequizzes`\n"
@@ -110,8 +107,8 @@ function code(msg) {
         msg.channel.send("Invalid argument. Try `!removeclass [class name]`")
         return
      }
-     classes.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
-        if(numRemoved == 1) {
+     classes.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, { multi: true }, function (err, numRemoved) {
+        if(numRemoved >= 1) {
             msg.channel.send("Class removed!")
             return
         }
