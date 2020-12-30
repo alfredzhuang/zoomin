@@ -74,7 +74,7 @@ function help(msg) {
                     + "or if you want to see how the bot was coded, use `!code`")
 }
 function code(msg) {
-    msg.channel.send("This bot was coded using Javascript, you can look at the documentation at https://github.com/alfredzhuang/zoomin")
+    msg.channel.send("This bot was coded using Javascript. The documentation can be found at https://github.com/alfredzhuang/zoomin")
 }
 
  function addClass(arguments, msg) {
