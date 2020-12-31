@@ -17,17 +17,17 @@ client.on('ready', () => {
 
     client.user.setActivity("with Javascript");
 
-    // Remind Users at 7 AM and then check if homework/quizzes/tests are outdated
-    let remind = new cron.CronJob('0 0 7 * * *', () => {
+    // Remind Users at 7 AM PST and then check if homework/quizzes/tests are outdated
+    let remind = new cron.CronJob('0 0 7 * * *', function() {
         reminder();
         checkDates();
-    });
+    }, null, true, 'America/Los_Angeles');
     remind.start();
 
-    // Check again at 7 PM to see if homework.quizzes/tests are outdated
-    let check = new cron.CronJob('0 0 19 * * *', () => {
+    // Check again at 7 PM PST to see if homework.quizzes/tests are outdated
+    let check = new cron.CronJob('0 0 19 * * *', function() {
         checkDates();
-    });
+    }, null, true, 'America/Los_Angeles');
     check.start();
 })
 
