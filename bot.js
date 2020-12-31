@@ -118,11 +118,11 @@ function reminder() {
                 theDate = "on " + test.month + "/" + test.date;
             }
             let person
-            if(theClass.decision == "Y" || theClass.decision == "y") {
+            if(test.decision === "Y" || test.decision === "y") {
                 person = "@everyone";
             }
             else {
-                person = theClass.user;
+                person = test.user;
             }
             channel.send("❗ " + person + " There is a test for " + test.name + " " + theDate + " at " + time + " ❗");
         }
@@ -151,11 +151,11 @@ function reminder() {
                 theDate = "on " + quiz.month + "/" + quiz.date;
             }
             let person;
-            if(theClass.decision == "Y" || theClass.decision == "y") {
+            if(quiz.decision === "Y" || quiz.decision === "y") {
                 person = "@everyone";
             }
             else {
-                person = theClass.user;
+                person = quiz.user;
             }
             channel.send("❗ " + person + " There is a quiz for " + quiz.name + " " + theDate + " at " + time + " ❗");
         }
@@ -184,11 +184,11 @@ function reminder() {
                 theDate = "on " + homework.month + "/" + homework.date;
             }
             let person;
-            if(theClass.decision == "Y" || theClass.decision == "y") {
+            if(homework.decision == "Y" || homework.decision == "y") {
                 person = "@everyone";
             }
             else {
-                person = theClass.user;
+                person = homework.user;
             }
             channel.send("❗ " + person + " Homework is due for " + homework.name + " " + theDate + " at " + time + " ❗");
         }
