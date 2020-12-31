@@ -17,10 +17,10 @@ client.on('ready', () => {
 
     client.user.setActivity("with Javascript");
 
-    // Remind Users at 7 AM PST and then check if homework/quizzes/tests are outdated
+    // Check if homework/quizzes/tests are outdated and then remind Users at 7 AM PST
     let remind = new cron.CronJob('0 0 7 * * *', function() {
-        reminder();
         checkDates();
+        reminder();
     }, null, true, 'America/Los_Angeles');
     remind.start();
 
