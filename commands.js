@@ -145,8 +145,8 @@ function code(msg) {
         msg.channel.send("Invalid argument. Try `!removeclass [class name]`");
         return;
      }
-     classes.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, { multi: true }, function (err, numRemoved) {
-        if(numRemoved >= 1) {
+     Class.deleteMany({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }, { channelid: msg.channel.id }] }, function (err, numRemoved) {
+        if(numRemoved.deletedCount >= 1) {
             msg.channel.send("Class removed!");
             return;
         }
@@ -209,8 +209,8 @@ function code(msg) {
         msg.channel.send("Invalid argument. Try `!removetest [class name]`");
         return;
     }
-    tests.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
-        if(numRemoved == 1) {
+    Test.deleteOne({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }, { channelid: msg.channel.id}] }, function (err, numRemoved) {
+        if(numRemoved.deletedCount == 1) {
             msg.channel.send("Test removed!");
             return;
         }
@@ -247,8 +247,8 @@ function code(msg) {
         msg.channel.send("Invalid argument. Try `!removequiz [class name]`");
         return;
     }
-    quizzes.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
-        if(numRemoved == 1) {
+    Quiz.deleteOne({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }, { channelid: msg.channel.id }] }, function (err, numRemoved) {
+        if(numRemoved.deletedCount == 1) {
             msg.channel.send("Quiz removed!");
             return;
         }
@@ -258,7 +258,7 @@ function code(msg) {
         }
     })
  }
- function addhomework(arguments, msg) {
+ function addHomework(arguments, msg) {
     if(arguments.length != 5) {
         msg.channel.send("Invalid arguments. Try `!addhomework [class of test] deadline [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]`");
         return;
@@ -280,13 +280,13 @@ function code(msg) {
     newHomework.save();
     msg.channel.send("Homework added!");
  }
- function removehomework(arguments, msg) {
+ function removeHomework(arguments, msg) {
     if(arguments.length != 1) {
         msg.channel.send("Invalid argument. Try `!removehomework [class name]`");
         return;
     }
-    homework.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
-        if(numRemoved == 1) {
+    Homework.deleteOne({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }, { channelid: msg.channel.id }] }, function (err, numRemoved) {
+        if(numRemoved.deletedCount == 1) {
             msg.channel.send("Homework removed!");
             return;
         }
