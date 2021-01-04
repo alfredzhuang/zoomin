@@ -1,7 +1,7 @@
 let Discord = require('discord.js');
 require('dotenv').config();
 let client = new Discord.Client();
-let { processCommand, classes, tests, quizzes, hw } = require("./commands.js");
+let { processCommand, Class, Test, Quiz, Homework } = require("./commands.js");
 let cron = require('cron');
 
 client.login(process.env.DISCORD_KEY)
@@ -16,7 +16,7 @@ client.on('ready', () => {
     console.log("Connected as " + client.user.tag);
 
     client.user.setActivity("with Javascript");
-
+    
     // Check if homework/quizzes/tests are outdated and then remind Users at 7 AM PST
     let remind = new cron.CronJob('0 0 7 * * *', function() {
         checkDates();
@@ -68,7 +68,7 @@ function reminder() {
     }
 
     // Send a message to the channels that have classes today, or tests/quizzes/hw coming up soon
-    classes.find({ day: day }, function (err, docs) {
+    Class.find({ day: day }, function (err, docs) {
         for(theClass of docs) {
             let channel = client.channels.cache.get(theClass.channelid);
             let time;
@@ -94,7 +94,7 @@ function reminder() {
             channel.send("❗ " + person + " There is a " + theClass.name + " class today at " + time + ", " + theClass.link + " ❗");
         }
     }) 
-    tests.find({}, function (err, docs) {
+    Test.find({}, function (err, docs) {
         for(test of docs) {
             let channel = client.channels.cache.get(test.channelid);
             let time;
@@ -127,7 +127,7 @@ function reminder() {
             channel.send("❗ " + person + " There is a test for " + test.name + " " + theDate + " at " + time + " ❗");
         }
     })
-    quizzes.find({}, function (err, docs) {
+    Quiz.find({}, function (err, docs) {
         for(quiz of docs) {
             let channel = client.channels.cache.get(quiz.channelid);
             let time;
@@ -160,7 +160,7 @@ function reminder() {
             channel.send("❗ " + person + " There is a quiz for " + quiz.name + " " + theDate + " at " + time + " ❗");
         }
     }) 
-    hw.find({}, function (err, docs) {
+    Homework.find({}, function (err, docs) {
         for(homework of docs) {
             let channel = client.channels.cache.get(homework.channelid);
             let time;
@@ -202,26 +202,26 @@ function checkDates() {
     let date = d.getDate();
     let month = d.getMonth() + 1;
     let hour = d.getHours();
-    tests.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
+    Test.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
         for(test of docs) {
             if(test.hour < hour) {
-                tests.remove({ _id: test._id }, {}, function (err, numRemoved) {
+                Test.deleteOne({ _id: test._id }, function (err, numRemoved) {
                 });
             }
         }
     })
-    quizzes.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
+    Quiz.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
         for(quiz of docs) {
             if(quiz.hour < hour) {
-                quizzes.remove({ _id: quiz._id }, {}, function (err, numRemoved) {
+                Quiz.deleteOne({ _id: quiz._id }, function (err, numRemoved) {
                 });
             }
         }
     })
-    hw.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
+    Homework.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
         for(homework of docs) {
             if(homework.hour < hour) {
-                hw.remove({ _id: homework._id }, {}, function (err, numRemoved) {
+                Homework.deleteOne({ _id: homework._id }, function (err, numRemoved) {
                 });
             }
         }
