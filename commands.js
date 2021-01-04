@@ -1,12 +1,5 @@
-let Datastore = require('nedb');
-let classes = new Datastore('database/classes.db');
-classes.loadDatabase();
-let tests = new Datastore('database/tests.db');
-tests.loadDatabase();
-let quizzes = new Datastore('database/quizzes.db');
-quizzes.loadDatabase();
-let hw = new Datastore('database/hw.db');
-hw.loadDatabase();
+let mongoose = require("mongoose");
+mongoose.connect(process.env.MONGODB_ADDRESS, {useNewUrlParser: true, useUnifiedTopology: true});
 
 function processCommand(msg) {
     // split the command and arguments
