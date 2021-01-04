@@ -1,6 +1,54 @@
 let mongoose = require("mongoose");
 mongoose.connect(process.env.MONGODB_ADDRESS, {useNewUrlParser: true, useUnifiedTopology: true});
 
+let classesSchema = {
+    name: String,
+    link: String,
+    day:  String,
+    hour: Number,
+    minutes: Number,
+    decision: String, 
+    user: String,
+    channelid: String
+}
+let Class = mongoose.model("Class", classesSchema);
+
+let testsSchema = {
+    name: String,
+    month:  Number,
+    date: Number,
+    hour: Number,
+    minutes: Number,
+    decision: String,
+    user: String,
+    channelid: String
+}
+let Test = mongoose.model("Test", testsSchema);
+
+let quizzesSchema = {
+    name: String,
+    month:  Number,
+    date: Number,
+    hour: Number,
+    minutes: Number,
+    decision: String,
+    user: String,
+    channelid: String
+}
+let Quiz = mongoose.model("Quiz", quizzesSchema);
+
+let homeworksSchema = {
+    name: String,
+    month:  Number,
+    date: Number,
+    hour: Number,
+    minutes: Number,
+    decision: String,
+    user: String,
+    channelid: String
+}
+let Homework = mongoose.model("Homework", homeworksSchema);
+
 function processCommand(msg) {
     // split the command and arguments
     let full = msg.content.substr(1);
@@ -30,11 +78,11 @@ function processCommand(msg) {
     else if(command == "removequiz") {
         removeQuiz(arguments, msg);
     }
-    else if(command == "addhw") {
-        addHw(arguments, msg);
+    else if(command == "addhomework") {
+        addHomework(arguments, msg);
     }
-    else if(command == "removehw") {
-         removeHw(arguments, msg);
+    else if(command == "removehomework") {
+         removeHomework(arguments, msg);
     }
     else if(command == "seeclasses") {
         seeClasses(msg);
@@ -61,8 +109,8 @@ function help(msg) {
                     + "`!addclass [class name] [zoom link] [day of the week (M-T-W-TH-F)] [meeting time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n"
                     + "`!addtest [class name] test date [month 1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n"
                     + "`!addquiz [class name] quiz date [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n" 
-                    + "`!addhw [class name] deadline [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n" 
-                    + "`!removeclass [class name]` `!removetest [class name]` `!removequiz [class name]` `!removehw [class name]` \n"
+                    + "`!addhomework [class name] deadline [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]` \n" 
+                    + "`!removeclass [class name]` `!removetest [class name]` `!removequiz [class name]` `!removehomework [class name]` \n"
                     + "To see your already existing list of entries, use `!seeclasses` `!seetests` `!seequizzes` or `!seehomeworks`\n"
                     + "or if you want to see how the bot was coded, use `!code`");
 }
@@ -210,16 +258,16 @@ function code(msg) {
         }
     })
  }
- function addHw(arguments, msg) {
+ function addhomework(arguments, msg) {
     if(arguments.length != 5) {
-        msg.channel.send("Invalid arguments. Try `!addhw [class of test] deadline [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]`");
+        msg.channel.send("Invalid arguments. Try `!addhomework [class of test] deadline [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]`");
         return;
     }
     let time = validateArguments(arguments, msg);
     if(time == null) {
         return;
     }
-    let newHw = {
+    let newhomework = {
         name: arguments[0],
         month: arguments[1],
         date: arguments[2],
@@ -229,15 +277,15 @@ function code(msg) {
         user: msg.author.toString(),
         channelid: msg.channel.id
     }
-    hw.insert(newHw);
+    homework.insert(newhomework);
     msg.channel.send("Homework added!");
  }
- function removeHw(arguments, msg) {
+ function removehomework(arguments, msg) {
     if(arguments.length != 1) {
-        msg.channel.send("Invalid argument. Try `!removehw [class name]`");
+        msg.channel.send("Invalid argument. Try `!removehomework [class name]`");
         return;
     }
-    hw.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
+    homework.remove({ $and: [{ name: arguments[0] }, { user: msg.author.toString() }] }, {}, function (err, numRemoved) {
         if(numRemoved == 1) {
             msg.channel.send("Homework removed!");
             return;
@@ -358,12 +406,12 @@ function code(msg) {
     }
  }
  function seeHomeworks(msg) {
-    if(hw.length == 0) {
+    if(homework.length == 0) {
         msg.channel.send("There are currently no existing homeworks");
         return;
     }
     else {
-        hw.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
+        homework.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
             let count = 0;
             for(item of docs) {
                 msg.channel.send("Homework " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.hour + ":" + item.minutes);
@@ -377,4 +425,4 @@ function code(msg) {
     }
  }
 
- module.exports = { processCommand, classes, tests, quizzes, hw }
+ module.exports = { processCommand, Class, Test, Quiz, Homework }
