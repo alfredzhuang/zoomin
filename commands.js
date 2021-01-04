@@ -1,52 +1,52 @@
 let mongoose = require("mongoose");
 mongoose.connect(process.env.MONGODB_ADDRESS, {useNewUrlParser: true, useUnifiedTopology: true});
 
-let classesSchema = {
+let classesSchema = new mongoose.Schema({
     name: String,
     link: String,
     day:  String,
-    hour: Number,
-    minutes: Number,
+    hour: String,
+    minutes: String,
     decision: String, 
     user: String,
     channelid: String
-}
+});
 let Class = mongoose.model("Class", classesSchema);
 
-let testsSchema = {
+let testsSchema = new mongoose.Schema({
     name: String,
-    month:  Number,
-    date: Number,
-    hour: Number,
-    minutes: Number,
+    month:  String,
+    date: String,
+    hour: String,
+    minutes: String,
     decision: String,
     user: String,
     channelid: String
-}
+});
 let Test = mongoose.model("Test", testsSchema);
 
-let quizzesSchema = {
+let quizzesSchema = new mongoose.Schema({
     name: String,
-    month:  Number,
-    date: Number,
-    hour: Number,
-    minutes: Number,
+    month:  String,
+    date: String,
+    hour: String,
+    minutes: String,
     decision: String,
     user: String,
     channelid: String
-}
+});
 let Quiz = mongoose.model("Quiz", quizzesSchema);
 
-let homeworksSchema = {
+let homeworksSchema = new mongoose.Schema({
     name: String,
-    month:  Number,
-    date: Number,
-    hour: Number,
-    minutes: Number,
+    month:  String,
+    date: String,
+    hour: String,
+    minutes: String,
     decision: String,
     user: String,
     channelid: String
-}
+});
 let Homework = mongoose.model("Homework", homeworksSchema);
 
 function processCommand(msg) {
@@ -127,7 +127,7 @@ function code(msg) {
     if(time == null) {
         return;
     }
-    let newClass = {
+    let newClass = new Class({
         name: arguments[0],
         link: arguments[1],
         day:  arguments[2],
@@ -136,8 +136,8 @@ function code(msg) {
         decision: arguments[4], 
         user: msg.author.toString(),
         channelid: msg.channel.id
-    };
-    classes.insert(newClass);
+    });
+    newClass.save();
     msg.channel.send("Class added!");
 }
  function removeClass(arguments, msg) {
@@ -191,7 +191,7 @@ function code(msg) {
     if(time == null) {
         return;
     }
-    let newTest = {
+    let newTest = new Test({
         name: arguments[0],
         month:  arguments[1],
         date: arguments[2],
@@ -200,8 +200,8 @@ function code(msg) {
         decision: arguments[4],
         user: msg.author.toString(),
         channelid: msg.channel.id
-    }
-    tests.insert(newTest);
+    });
+    newTest.save();
     msg.channel.send("Test added!");
  }
  function removeTest(arguments, msg) {
@@ -229,7 +229,7 @@ function code(msg) {
     if(time == null) {
         return;
     }
-    let newQuiz = {
+    let newQuiz = new Quiz({
         name: arguments[0],
         month:  arguments[1],
         date: arguments[2],
@@ -238,8 +238,8 @@ function code(msg) {
         decision: arguments[4],
         user: msg.author.toString(),
         channelid: msg.channel.id
-    }
-    quizzes.insert(newQuiz);
+    });
+    newQuiz.save();
     msg.channel.send("Quiz added!");
 }
  function removeQuiz(arguments, msg) {
@@ -267,7 +267,7 @@ function code(msg) {
     if(time == null) {
         return;
     }
-    let newhomework = {
+    let newHomework = new Homework({
         name: arguments[0],
         month: arguments[1],
         date: arguments[2],
@@ -276,8 +276,8 @@ function code(msg) {
         decision: arguments[4],
         user: msg.author.toString(),
         channelid: msg.channel.id
-    }
-    homework.insert(newhomework);
+    });
+    newHomework.save();
     msg.channel.send("Homework added!");
  }
  function removehomework(arguments, msg) {
