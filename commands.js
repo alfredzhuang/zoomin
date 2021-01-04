@@ -349,80 +349,57 @@ function code(msg) {
  }
 
  function seeClasses(msg) {
-    if(classes.length == 0) {
-        msg.channel.send("There are currently no existing classes");
-        return;
-    }
-    else {
-        classes.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
-            let count = 0;
-            for(item of docs) {
-                msg.channel.send("Class " + (count+1) + ": " + item.name + " - " + item.link + " - " + item.day + " - " + item.hour + ":" + item.minutes);
-                count++;
-            }
-            if(count == 0) {
-                msg.channel.send("There are currently no existing classes");
-                return;
-            }
-        })
-    }
+    Class.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
+        if(docs.length === 0) {
+            msg.channel.send("There are currently no existing classes");
+            return;
+        }
+        let count = 0;
+        for(item of docs) {
+            msg.channel.send("Class " + (count+1) + ": " + item.name + " - " + item.link + " - " + item.day + " - " + item.hour + ":" + item.minutes);
+            count++;
+        }
+    })
  }
  function seeTests(msg) {
-    if(tests.length == 0) {
-        msg.channel.send("There are currently no existing tests");
-        return;
-    }
-    else {
-        tests.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
-            let count = 0;
-            for(item of docs) {
-                msg.channel.send("Test " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.hour + ":" + item.minutes);
-                count++;
-            }
-            if(count == 0) {
-                msg.channel.send("There are currently no existing tests");
-                return;
-            }
-        })
-    }
+    Test.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
+        if(docs.length == 0) {
+            msg.channel.send("There are currently no existing classes");
+            return;
+        }
+        let count = 0;
+        for(item of docs) {
+            msg.channel.send("Test " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.hour + ":" + item.minutes);
+            count++;
+        }
+    })
+    
  }
  function seeQuizzes(msg) {
-    if(quizzes.length == 0) {
-        msg.channel.send("There are currently no existing quizzes");
-        return;
-    }
-    else {
-        quizzes.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
-            let count = 0;
-            for(item of docs) {
-                msg.channel.send("Quiz " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.hour + ":" + item.minutes);
-                count++;
-            }
-            if(count == 0) {
-                msg.channel.send("There are currently no existing quizzes");
-                return;
-            }
-        })
-    }
+    Quiz.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
+        if(docs.length == 0) {
+            msg.channel.send("There are currently no existing classes");
+            return;
+        }
+        let count = 0;
+        for(item of docs) {
+            msg.channel.send("Quiz " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.hour + ":" + item.minutes);
+            count++;
+        }
+    })
  }
  function seeHomeworks(msg) {
-    if(homework.length == 0) {
-        msg.channel.send("There are currently no existing homeworks");
-        return;
-    }
-    else {
-        homework.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
-            let count = 0;
-            for(item of docs) {
-                msg.channel.send("Homework " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.hour + ":" + item.minutes);
-                count++;
-            }
-            if(count == 0) {
-                msg.channel.send("There are currently no existing homeworks");
-                return;
-            }
-        })
-    }
+    Homework.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
+        if(docs.length === 0) {
+            msg.channel.send("There are currently no existing homeworks");
+            return;
+        }
+        let count = 0;
+        for(item of docs) {
+            msg.channel.send("Homework " + (count+1) + ": " + item.name + " - " + item.month + "/" + item.date + " - " + item.hour + ":" + item.minutes);
+            count++;
+        }
+    })
  }
 
  module.exports = { processCommand, Class, Test, Quiz, Homework }
