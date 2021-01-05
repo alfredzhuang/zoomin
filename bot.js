@@ -17,15 +17,21 @@ client.on('ready', () => {
 
     client.user.setActivity("with Javascript");
     
-    // Check if homework/quizzes/tests are outdated and then remind Users at 7 AM PST
+    // Check if any test/quiz/homework dates are outdated and then remind users of upcoming tests/quizzes/homework at 7 AM PST
     let remind = new cron.CronJob('0 0 7 * * *', function() {
         checkDates();
         reminder();
     }, null, true, 'America/Los_Angeles');
     remind.start();
 
-    // Check again at 7 PM PST to see if homework.quizzes/tests are outdated
-    let check = new cron.CronJob('0 0 19 * * *', function() {
+    // Check if users can be reminded about class sessions starting every 5 minutes
+    let remindNow = new cron.CronJob('0 */5 * * * * ', function() {
+        reminderNow();
+    }, null, true, 'America/Los_Angeles');
+    remindNow.start();
+
+    // Check everyday right before midnight to see if any test/quiz/homework dates are outdated and need to be deleted
+    let check = new cron.CronJob('0 59 11 * * *', function() {
         checkDates();
     }, null, true, 'America/Los_Angeles');
     check.start();
@@ -42,58 +48,9 @@ client.on('message', (msg) => {
 })
 
 function reminder() {
-    // get today's date, month, hour, and day
     let d = new Date();
     let date = d.getDate();
     let month = d.getMonth() + 1;
-    let day;
-    switch(d.getDay()) {
-        case 1:
-            day = "M";
-            break;
-        case 2:
-            day = "T";
-            break;
-        case 3:
-            day = "W";
-            break;
-        case 4:
-            day = "TH";
-            break;
-        case 5:
-            day = "F";
-            break;
-        default: 
-            day = null;
-    }
-
-    // Send a message to the channels that have classes today, or tests/quizzes/hw coming up soon
-    Class.find({ day: day }, function (err, docs) {
-        for(theClass of docs) {
-            let channel = client.channels.cache.get(theClass.channelid);
-            let time;
-            if(theClass.hour == 0) {
-                time = "12:" + theClass.minutes + " AM";
-            }
-            else if(theClass.hour == 12) {
-                time = "12:" + theClass.minutes + " PM";
-            }
-            else if(theClass.hour < 12) {
-                time = theClass.hour + ":" + theClass.minutes + " AM";
-            }
-            else {
-                time = theClass.hour%12 + ":" + theClass.minutes + " PM";
-            }
-            let person;
-            if(theClass.decision == "Y" || theClass.decision == "y") {
-                person = "@everyone";
-            }
-            else {
-                person = theClass.user;
-            }
-            channel.send("❗ " + person + " There is a " + theClass.name + " class today at " + time + ", " + theClass.link + " ❗");
-        }
-    }) 
     Test.find({}, function (err, docs) {
         for(test of docs) {
             let channel = client.channels.cache.get(test.channelid);
@@ -112,7 +69,7 @@ function reminder() {
             }
             let theDate;
             if(test.month == month && test.date == date) {
-                theDate = "Today";
+                theDate = "today";
             }
             else {
                 theDate = "on " + test.month + "/" + test.date;
@@ -195,6 +152,58 @@ function reminder() {
     })
 }
 
+function reminderNow() {
+        let d = new Date();
+        let hour = d.getHours();
+        let minutes = d.getMinutes();
+        let day;
+        switch(d.getDay()) {
+            case 1:
+                day = "M";
+                break;
+            case 2:
+                day = "T";
+                break;
+            case 3:
+                day = "W";
+                break;
+            case 4:
+                day = "TH";
+                break;
+            case 5:
+                day = "F";
+                break;
+            default: 
+                day = null;
+        }
+        // Send a message to the channels that have classes right now, or tests/quizzes/hw due now
+        Class.find({ $and: [{ day: day }, { hour: hour }, { minutes: minutes }] }, function (err, docs) {
+            for(theClass of docs) {
+                let channel = client.channels.cache.get(theClass.channelid);
+                let time;
+                if(theClass.hour == 0) {
+                    time = "12:" + theClass.minutes + " AM";
+                }
+                else if(theClass.hour == 12) {
+                    time = "12:" + theClass.minutes + " PM";
+                }
+                else if(theClass.hour < 12) {
+                    time = theClass.hour + ":" + theClass.minutes + " AM";
+                }
+                else {
+                    time = theClass.hour%12 + ":" + theClass.minutes + " PM";
+                }
+                let person;
+                if(theClass.decision == "Y" || theClass.decision == "y") {
+                    person = "@everyone";
+                }
+                else {
+                    person = theClass.user;
+                }
+                channel.send("❗ " + person + " There is a " + theClass.name + " class now at " + time + ", " + theClass.link + " ❗");
+            }
+        }) 
+}
 
 function checkDates() {
     // Check if we've passed the dates on tests, quizzes, and hw. If so, we remove it from the database
