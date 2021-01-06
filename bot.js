@@ -157,6 +157,9 @@ function reminderNow() {
         let d = new Date();
         let hour = d.getHours();
         let minutes = d.getMinutes();
+        if(minutes >= 0 && minutes <= 9) {
+            minutes = "0" + minutes;
+        }
         let day;
         switch(d.getDay()) {
             case 1:
