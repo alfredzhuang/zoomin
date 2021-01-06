@@ -176,10 +176,8 @@ function reminderNow() {
             default: 
                 day = null;
         }
-        console.log(day + " " + hour + " " + minutes);
         // Send a message to the channels that have classes right now, or tests/quizzes/hw due now
         Class.find({ $and: [{ day: `${day}` }, { hour: `${hour}` }, { minutes: `${minutes}` }] }, function (err, docs) {
-            console.log(docs);
             for(theClass of docs) {
                 let channel = client.channels.cache.get(theClass.channelid);
                 let time;
