@@ -1,9 +1,10 @@
-let Discord = require('discord.js');
-require('dotenv').config();
+let Discord = require("discord.js");
+require("dotenv").config();
 let client = new Discord.Client();
 let { processCommand } = require("./commands.js");
 let { Class, Test, Quiz, Homework } = require("./database.js");
-let cron = require('cron');
+let cron = require("cron");
+let moment = require("moment-timezone");
 
 client.login(process.env.DISCORD_KEY)
 
@@ -20,7 +21,6 @@ client.on('ready', () => {
 
     // Check if any test/quiz/homework dates are outdated and then remind users of upcoming tests/quizzes/homework at 7 AM PST
     let remind = new cron.CronJob('0 0 7 * * *', function() {
-        console.log("checkDates and reminder called");
         checkDates();
         reminder();
     }, null, true, 'America/Los_Angeles');
@@ -28,14 +28,12 @@ client.on('ready', () => {
 
     // Check if users can be reminded about class sessions starting every 5 minutes
     let remindNow = new cron.CronJob('0 */5 * * * * ', function() {
-        console.log("reminderNow called");
         reminderNow();
     }, null, true, 'America/Los_Angeles');
     remindNow.start();
 
     // Check everyday right before midnight to see if any test/quiz/homework dates are outdated and need to be deleted
     let check = new cron.CronJob('0 59 11 * * *', function() {
-        console.log("checkDates called");
         checkDates();
     }, null, true, 'America/Los_Angeles');
     check.start();
@@ -52,9 +50,8 @@ client.on('message', (msg) => {
 })
 
 function reminder() {
-    let d = new Date();
-    let date = d.getDate();
-    let month = d.getMonth() + 1;
+    let month = moment().tz("America/Los_Angeles").format('M');
+    let date = moment().tz("America/Los_Angeles").format('D');
     Test.find({}, function (err, docs) {
         for(test of docs) {
             let channel = client.channels.cache.get(test.channelid);
@@ -157,27 +154,23 @@ function reminder() {
 }
 
 function reminderNow() {
-        let d = new Date();
-        let hour = d.getHours();
-        let minutes = d.getMinutes();
-        if(minutes >= 0 && minutes <= 9) {
-            minutes = "0" + minutes;
-        }
-        let day;
-        switch(d.getDay()) {
-            case 1:
+        let hour = moment().tz("America/Los_Angeles").format('H');
+        let minutes = moment().tz("America/Los_Angeles").format('mm');
+        let day = moment().tz("America/Los_Angeles").format('dddd');
+        switch(day) {
+            case "Monday":
                 day = "M";
                 break;
-            case 2:
+            case "Tuesday":
                 day = "T";
                 break;
-            case 3:
+            case "Wednesday":
                 day = "W";
                 break;
-            case 4:
+            case "Thursday":
                 day = "TH";
                 break;
-            case 5:
+            case "Friday":
                 day = "F";
                 break;
             default: 
@@ -216,10 +209,9 @@ function reminderNow() {
 
 function checkDates() {
     // Check if we've passed the dates on tests, quizzes, and hw. If so, we remove it from the database
-    let d = new Date();
-    let date = d.getDate();
-    let month = d.getMonth() + 1;
-    let hour = d.getHours();
+    let month = moment().tz("America/Los_Angeles").format('M');
+    let date = moment().tz("America/Los_Angeles").format('D');
+    let hour = moment().tz("America/Los_Angeles").format('H');
     Test.find({ $and: [{ month: `${month}` }, { date: `${date}` }] }, function (err, docs) {
         for(test of docs) {
             if(test.hour < hour) {
