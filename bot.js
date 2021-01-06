@@ -20,6 +20,7 @@ client.on('ready', () => {
 
     // Check if any test/quiz/homework dates are outdated and then remind users of upcoming tests/quizzes/homework at 7 AM PST
     let remind = new cron.CronJob('0 0 7 * * *', function() {
+        console.log("checkDates and reminder called");
         checkDates();
         reminder();
     }, null, true, 'America/Los_Angeles');
@@ -27,12 +28,14 @@ client.on('ready', () => {
 
     // Check if users can be reminded about class sessions starting every 5 minutes
     let remindNow = new cron.CronJob('0 */5 * * * * ', function() {
+        console.log("reminderNow called");
         reminderNow();
     }, null, true, 'America/Los_Angeles');
     remindNow.start();
 
     // Check everyday right before midnight to see if any test/quiz/homework dates are outdated and need to be deleted
     let check = new cron.CronJob('0 59 11 * * *', function() {
+        console.log("checkDates called");
         checkDates();
     }, null, true, 'America/Los_Angeles');
     check.start();
@@ -180,8 +183,10 @@ function reminderNow() {
             default: 
                 day = null;
         }
+        console.log(day + " " + hour + " " + minutes);
         // Send a message to the channels that have classes right now, or tests/quizzes/hw due now
-        Class.find({ $and: [{ day: day }, { hour: hour }, { minutes: minutes }] }, function (err, docs) {
+        Class.find({ $and: [{ day: `${day}` }, { hour: `${hour}` }, { minutes: `${minutes}` }] }, function (err, docs) {
+            console.log(docs);
             for(theClass of docs) {
                 let channel = client.channels.cache.get(theClass.channelid);
                 let time;
