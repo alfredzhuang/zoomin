@@ -6,13 +6,13 @@ let { Class, Test, Quiz, Homework } = require("./database.js");
 let cron = require("cron");
 let moment = require("moment-timezone");
 
-client.login(process.env.DISCORD_KEY)
+client.login(process.env.DISCORD_KEY);
 
 // Bot join message
 client.on('guildCreate', guild => {
     let channel = guild.channels.cache.find(channel => channel.type === 'text' && channel.permissionsFor(guild.me).has('SEND_MESSAGES'));
     channel.send("Hi, I'm Zoomin'! I'm a bot that specializes in creating reminders for students! Check out what I can do with `!help`");
-})
+});
 
 client.on('ready', () => {
     console.log("Connected as " + client.user.tag);
@@ -37,7 +37,7 @@ client.on('ready', () => {
         checkDates();
     }, null, true, 'America/Los_Angeles');
     check.start();
-})
+});
 
 client.on('message', (msg) => {
      if(msg.author.bot) {
@@ -47,7 +47,7 @@ client.on('message', (msg) => {
      if(msg.content.startsWith("!")) {
          processCommand(msg);
      }
-})
+});
 
 function reminder() {
     let month = moment().tz("America/Los_Angeles").format('M');
@@ -82,9 +82,9 @@ function reminder() {
             else {
                 person = test.user;
             }
-            channel.send("❗ " + person + " There is a test for " + test.name + " " + theDate + " at " + time + " ❗");
+            channel.send(person + ", there is a test for " + test.name + " " + theDate + " at " + time + " ❗");
         }
-    })
+    });
     Quiz.find({}, function (err, docs) {
         for(quiz of docs) {
             let channel = client.channels.cache.get(quiz.channelid);
@@ -115,9 +115,9 @@ function reminder() {
             else {
                 person = quiz.user;
             }
-            channel.send("❗ " + person + " There is a quiz for " + quiz.name + " " + theDate + " at " + time + " ❗");
+            channel.send(person + ", there is a quiz for " + quiz.name + " " + theDate + " at " + time + " ❗");
         }
-    }) 
+    });
     Homework.find({}, function (err, docs) {
         for(homework of docs) {
             let channel = client.channels.cache.get(homework.channelid);
@@ -148,9 +148,9 @@ function reminder() {
             else {
                 person = homework.user;
             }
-            channel.send("❗ " + person + " Homework is due for " + homework.name + " " + theDate + " at " + time + " ❗");
+            channel.send(person + ", homework is due for " + homework.name + " " + theDate + " at " + time + " ❗");
         }
-    })
+    });
 }
 
 function reminderNow() {
@@ -176,7 +176,7 @@ function reminderNow() {
             default: 
                 day = null;
         }
-        // Send a message to the channels that have classes right now, or tests/quizzes/hw due now
+        // Send a message to the channels that have classes right now
         Class.find({ $and: [{ day: `${day}` }, { hour: `${hour}` }, { minutes: `${minutes}` }] }, function (err, docs) {
             for(theClass of docs) {
                 let channel = client.channels.cache.get(theClass.channelid);
@@ -200,9 +200,14 @@ function reminderNow() {
                 else {
                     person = theClass.user;
                 }
-                channel.send("❗ " + person + " There is a " + theClass.name + " class now at " + time + ", " + theClass.link + " ❗");
+                let embed = new Discord.MessageEmbed()
+                .setTitle("❗ Class Reminder ❗")
+                .addField("Class Information", theClass.name + " @ " + time)
+                .addField("Meeting Link", theClass.link)
+                .setColor(0xF1C40F);
+                channel.send(person, embed);
             }
-        }) 
+        });
 }
 
 function checkDates() {
@@ -233,5 +238,5 @@ function checkDates() {
                 });
             }
         }
-    })
+    });
 }
