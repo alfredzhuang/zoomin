@@ -20,8 +20,6 @@ client.on('ready', () => {
 
     client.user.setActivity("with Javascript");
 
-    reminder();
-
     // Check if any test/quiz/homework dates are outdated and then remind users of upcoming tests/quizzes/homework at 7 AM PST
     let remind = new cron.CronJob('0 0 7 * * *', function() {
         checkDates();
