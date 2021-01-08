@@ -1,5 +1,5 @@
-let { Class, Test, Quiz, Homework } = require("./database.js");
-let Discord = require("discord.js");
+let { Class, Test, Quiz, Homework } = require("../database/database.js");
+let { validateMonthAndDate, validateDay, validateTime, validateDecision } = require("./argumentValidation.js");
 
 function processCommand(msg) {
     // split the command and arguments
@@ -69,13 +69,14 @@ function help(msg) {
 function code(msg) {
     msg.reply("this bot was coded using Javascript. The documentation can be found at https://github.com/alfredzhuang/zoomin");
 }
-
  function addClass(arguments, msg) {
     if(arguments.length != 5) {
         msg.reply("invalid arguments. Try `!addclass [class name] [zoom link] [day of the week] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]`");
         return;
     }
-    let time = validateClass(arguments, msg);
+    if(!validateDay(arguments[2], msg)) return;
+    if(!validateDecision(arguments[4], msg)) return;
+    let time = validateTime(arguments[3], msg);
     if(time == null) {
         return;
     }
@@ -108,38 +109,14 @@ function code(msg) {
         }
     })
  }
-
- function validateClass(arguments, msg) {
-    if(arguments[2] != "M" && arguments[2] != "T" && arguments[2] != "W" && arguments[2] != "TH" && arguments[2] != "F") {
-        msg.reply("invalid day, try M-T-W-TH-F") ;
-        return null;
-    }
-    else if(!arguments[3].includes(":")) {
-        msg.reply("invalid time, try between 0:00-23:59");
-        return null;
-    }
-    else if(arguments[4] != "Y" && arguments[4] != "y" && arguments[4] != "N" && arguments[4] != "n") {
-        msg.reply("invalid Letter, try Y or N");
-        return null;
-    }
-    let time = arguments[3].split(":");
-    if(time[0] < 0 || time[0] > 23) {
-        msg.reply("invalid time, try between 0:00-23:59");
-        return null;
-    }
-    else if(time[1] < 0 || time[1] > 59 || time[1].length != 2) {
-        msg.reply("invalid time, try between 0:00-23:59");
-        return null;
-    }
-    return time;
- }
-
  function addTest(arguments, msg) {
     if(arguments.length != 5) {
         msg.reply("invalid arguments. Try `!addtest [class of test] test date [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]`");
         return;
     }
-    let time = validateArguments(arguments, msg);
+    if(!validateMonthAndDate(arguments[1], arguments[2], msg)) return;
+    if(!validateDecision(arguments[4], msg)) return;
+    let time = validateTime(arguments[3], msg);
     if(time == null) {
         return;
     }
@@ -177,7 +154,9 @@ function code(msg) {
         msg.reply("invalid arguments. Try `!addquiz [class of test] quiz date [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]`");
         return;
     }
-    let time = validateArguments(arguments, msg);
+    if(!validateMonthAndDate(arguments[1], arguments[2], msg)) return;
+    if(!validateDecision(arguments[4], msg)) return;
+    let time = validateTime(arguments[3], msg);
     if(time == null) {
         return;
     }
@@ -215,7 +194,9 @@ function code(msg) {
         msg.reply("invalid arguments. Try `!addhomework [class of test] deadline [month (1-12)] [date (1-31)] [time from 0:00-23:59] [Y to notify @everyone, N to notify only yourself]`");
         return;
     }
-    let time = validateArguments(arguments, msg);
+    if(!validateMonthAndDate(arguments[1], arguments[2], msg)) return;
+    if(!validateDecision(arguments[4], msg)) return;
+    let time = validateTime(arguments[3], msg);
     if(time == null) {
         return;
     }
@@ -248,58 +229,6 @@ function code(msg) {
         }
       })
  }
-
- function validateArguments(arguments, msg) {
-    if (arguments[1] < 1 || arguments[1] > 12) {
-        msg.reply("invalid month, try between 1-12") ;
-        return null;
-    }
-    else if(!arguments[3].includes(":")) {
-        msg.reply("invalid time, try between 0:00-23:59");
-        return null;
-    }
-    else if(arguments[4] != "Y" && arguments[4] != "y" && arguments[4] != "N" && arguments[4] != "n") {
-        msg.reply("invalid Letter, try Y or N");
-        return null;
-    }
-    if(arguments[1] == 4 || arguments[1] == 6 || arguments[1] == 9 || arguments[1] == 11) {
-        if(arguments[2] < 0 || arguments[2] > 30) {
-            msg.reply("invalid date, there are only 30 days in that month");
-            return null;
-        }
-    }
-    else if(arguments[1] == 2) {
-        let d = new Date();
-        let year = d.getFullYear();
-        if((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
-            if(arguments[2] < 0 || arguments[2] > 29) {
-                msg.reply("invalid date, there are only 29 days in that month");
-                return null;
-            }
-            else {
-                msg.reply("invalid date, there are only 28 days in that month");
-                return null;
-            }
-        }
-    }
-    else {
-        if(arguments[2] < 0 || arguments[2] > 31) {
-            msg.reply("invalid date, there are only 31 days in that month");
-            return null;
-        }
-    }
-    let time = arguments[3].split(":");
-    if(time[0] < 0 || time[0] > 23) {
-        msg.reply("invalid time, try between 0:00-23:59");
-        return null;
-    }
-    else if(time[1] < 0 || time[1] > 59 || time[1].length != 2) {
-        msg.reply("invalid time, try between 0:00-23:59");
-        return null;
-    }
-    return time;
- }
-
  function seeClasses(msg) {
     Class.find({ $and: [{ channelid: msg.channel.id }, { user: msg.author.toString() }] }, function (err, docs) {
         if(docs.length === 0) {

@@ -1,8 +1,9 @@
 let Discord = require("discord.js");
 require("dotenv").config();
 let client = new Discord.Client();
-let { processCommand } = require("./commands.js");
-let { Class, Test, Quiz, Homework } = require("./database.js");
+let { processCommand } = require("./commands/commands.js");
+let { Class, Test, Quiz, Homework } = require("./database/database.js");
+let { getDate, getPerson, getTime } = require("./commands/getData.js");
 let cron = require("cron");
 let moment = require("moment-timezone");
 
@@ -50,105 +51,31 @@ client.on('message', (msg) => {
 });
 
 function reminder() {
-    let month = moment().tz("America/Los_Angeles").format('M');
-    let date = moment().tz("America/Los_Angeles").format('D');
     Test.find({}, function (err, docs) {
         for(test of docs) {
             let channel = client.channels.cache.get(test.channelid);
-            let time;
-            if(test.hour == 0) {
-                time = "12:" + test.minutes + " AM";
-            }
-            else if(test.hour == 12) {
-                time = "12:" + test.minutes + " PM";
-            }
-            else if(test.hour < 12) {
-                time = test.hour + ":" + test.minutes + " AM";
-            }
-            else {
-                time = test.hour%12 + ":" + test.minutes + " PM";
-            }
-            let theDate;
-            if(test.month == month && test.date == date) {
-                theDate = "today";
-            }
-            else {
-                theDate = "on " + test.month + "/" + test.date;
-            }
-            let person
-            if(test.decision === "Y" || test.decision === "y") {
-                person = "@everyone";
-            }
-            else {
-                person = test.user;
-            }
-            channel.send(person + ", there is a test for " + test.name + " " + theDate + " at " + time + " ❗");
+            let time = getTime(test);
+            let date = getDate(test);
+            let person = getPerson(test);
+            channel.send(person + ", there is a test for " + test.name + " " + date + " at " + time + " ❗");
         }
     });
     Quiz.find({}, function (err, docs) {
         for(quiz of docs) {
             let channel = client.channels.cache.get(quiz.channelid);
-            let time;
-            if(quiz.hour == 0) {
-                time = "12:" + quiz.minutes + " AM";
-            }
-            else if(quiz.hour == 12) {
-                time = "12:" + quiz.minutes + " PM";
-            }
-            else if(quiz.hour < 12) {
-                time = quiz.hour + ":" + quiz.minutes + " AM";
-            }
-            else {
-                time = quiz.hour%12 + ":" + quiz.minutes + " PM";
-            }
-            let theDate;
-            if(quiz.month == month && quiz.date == date) {
-                theDate = "Today";
-            }
-            else {
-                theDate = "on " + quiz.month + "/" + quiz.date;
-            }
-            let person;
-            if(quiz.decision === "Y" || quiz.decision === "y") {
-                person = "@everyone";
-            }
-            else {
-                person = quiz.user;
-            }
-            channel.send(person + ", there is a quiz for " + quiz.name + " " + theDate + " at " + time + " ❗");
+            let time = getTime(quiz);
+            let date = getDate(quiz);
+            let person = getPerson(quiz);
+            channel.send(person + ", there is a quiz for " + quiz.name + " " + date + " at " + time + " ❗");
         }
     });
     Homework.find({}, function (err, docs) {
         for(homework of docs) {
             let channel = client.channels.cache.get(homework.channelid);
-            let time;
-            if(homework.hour == 0) {
-                time = "12:" + homework.minutes + " AM";
-            }
-            else if(homework.hour == 12) {
-                time = "12:" + homework.minutes + " PM";
-            }
-            else if(homework.hour < 12) {
-                time = homework.hour + ":" + homework.minutes + " AM";
-            }
-            else {
-                time = homework.hour%12 + ":" + homework.minutes + " PM";
-            }
-            let theDate;
-            if(homework.month == month && homework.date == date) {
-                theDate = "Today";
-            }
-            else {
-                theDate = "on " + homework.month + "/" + homework.date;
-            }
-            let person;
-            if(homework.decision == "Y" || homework.decision == "y") {
-                person = "@everyone";
-            }
-            else {
-                person = homework.user;
-            }
-            channel.send(person + ", homework is due for " + homework.name + " " + theDate + " at " + time + " ❗");
+            let time = getTime(homework);
+            let date = getDate(homework);
+            let person = getPerson(homework);
+            channel.send(person + ", homework is due for " + homework.name + " " + date + " at " + time + " ❗");
         }
     });
 }
@@ -180,26 +107,8 @@ function reminderNow() {
         Class.find({ $and: [{ day: `${day}` }, { hour: `${hour}` }, { minutes: `${minutes}` }] }, function (err, docs) {
             for(theClass of docs) {
                 let channel = client.channels.cache.get(theClass.channelid);
-                let time;
-                if(theClass.hour == 0) {
-                    time = "12:" + theClass.minutes + " AM";
-                }
-                else if(theClass.hour == 12) {
-                    time = "12:" + theClass.minutes + " PM";
-                }
-                else if(theClass.hour < 12) {
-                    time = theClass.hour + ":" + theClass.minutes + " AM";
-                }
-                else {
-                    time = theClass.hour%12 + ":" + theClass.minutes + " PM";
-                }
-                let person;
-                if(theClass.decision == "Y" || theClass.decision == "y") {
-                    person = "@everyone";
-                }
-                else {
-                    person = theClass.user;
-                }
+                let time = getTime(theClass);
+                let person = getPerson(theClass);
                 let embed = new Discord.MessageEmbed()
                 .setTitle("❗ Class Reminder ❗")
                 .addField("Class Information", theClass.name + " @ " + time)
