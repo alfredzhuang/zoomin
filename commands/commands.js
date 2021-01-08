@@ -1,4 +1,4 @@
-let { Class, Test, Quiz, Homework } = require("../database/database.js");
+let { Class, Test, Quiz, Homework } = require("../database.js");
 let { validateMonthAndDate, validateDay, validateTime, validateDecision } = require("./argumentValidation.js");
 
 function processCommand(msg) {

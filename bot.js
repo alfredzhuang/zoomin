@@ -2,7 +2,7 @@ let Discord = require("discord.js");
 require("dotenv").config();
 let client = new Discord.Client();
 let { processCommand } = require("./commands/commands.js");
-let { Class, Test, Quiz, Homework } = require("./database/database.js");
+let { Class, Test, Quiz, Homework } = require("./database.js");
 let { getDate, getPerson, getTime } = require("./commands/getData.js");
 let cron = require("cron");
 let moment = require("moment-timezone");
@@ -19,6 +19,8 @@ client.on('ready', () => {
     console.log("Connected as " + client.user.tag);
 
     client.user.setActivity("with Javascript");
+
+    reminder();
 
     // Check if any test/quiz/homework dates are outdated and then remind users of upcoming tests/quizzes/homework at 7 AM PST
     let remind = new cron.CronJob('0 0 7 * * *', function() {
